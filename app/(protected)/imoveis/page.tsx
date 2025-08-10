@@ -514,7 +514,7 @@ export default function ImoveisPage() {
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={cancelRemove} role="dialog" aria-modal="true" aria-labelledby="dialog-imoveis-remove-title">
           <div className="w-full max-w-md rounded-xl border border-border bg-card p-4" onClick={(e) => e.stopPropagation()}>
             <h3 id="dialog-imoveis-remove-title" className="text-lg font-medium mb-2">Confirmar exclusão</h3>
-            <p className="text-sm text-muted-foreground mb-4">Tem certeza que deseja excluir "{toDelete.titulo}"?</p>
+            <p className="text-sm text-muted-foreground mb-4">Tem certeza que deseja excluir &quot;{toDelete.titulo}&quot;?</p>
             <div className="flex justify-end gap-2">
               <button className="px-3 py-2 rounded-md border border-border" onClick={cancelRemove}>Cancelar</button>
               <button className="px-3 py-2 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10" onClick={confirmRemove}>Excluir</button>
