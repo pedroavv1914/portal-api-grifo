@@ -163,7 +163,50 @@ export default function VistoriasPage() {
             <button className="px-2 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={selected.size === 0} onClick={(e) => e.preventDefault()}>Ação em massa (mock)</button>
           </div>
         </div>
-        <div className="overflow-auto rounded-lg border border-border">
+        {/* Mobile: cards */}
+        <div className="md:hidden space-y-2" role="list" aria-label="Lista de vistorias (mobile)">
+          {pageItems.map((v) => (
+            <div key={v.id} role="listitem" className="rounded-lg border border-border bg-card/50 p-3">
+              <div className="flex items-start justify-between gap-2">
+                <label className="flex items-center gap-2">
+                  <input aria-label={`Selecionar vistoria ${v.id}`} type="checkbox" checked={selected.has(v.id)} onChange={() => toggleOne(v.id)} className="h-4 w-4" />
+                  <span className="font-medium">#{v.id}</span>
+                </label>
+                <a href={`/vistorias/${v.id}`} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30 text-sm">Abrir</a>
+              </div>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
+                <div className="col-span-2">
+                  <div className="text-[11px] text-muted-foreground">Imóvel</div>
+                  <div className="font-medium">{v.imovel}</div>
+                  <div className="text-muted-foreground text-xs">{v.endereco}</div>
+                </div>
+                <div>
+                  <div className="text-[11px] text-muted-foreground">Corretor</div>
+                  <div>{v.corretor}</div>
+                </div>
+                <div>
+                  <div className="text-[11px] text-muted-foreground">Data</div>
+                  <div>{new Date(v.data).toLocaleString()}</div>
+                </div>
+                <div className="col-span-2">
+                  <div className="text-[11px] text-muted-foreground">Status</div>
+                  <div>
+                    {v.status === "agendada" && <StatusBadge tone="blue">Agendada</StatusBadge>}
+                    {v.status === "em_andamento" && <StatusBadge tone="amber">Em andamento</StatusBadge>}
+                    {v.status === "concluida" && <StatusBadge tone="emerald">Concluída</StatusBadge>}
+                    {v.status === "contestada" && <StatusBadge tone="rose">Contestada</StatusBadge>}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+          {pageItems.length === 0 && (
+            <div className="rounded-lg border border-border p-6 text-center text-muted-foreground">Nenhum resultado para os filtros atuais.</div>
+          )}
+        </div>
+
+        {/* Desktop: tabela */}
+        <div className="hidden md:block overflow-auto rounded-lg border border-border">
           <table className="min-w-full text-sm">
             <thead className="sticky top-0 z-10 border-b bg-card/95 text-muted-foreground backdrop-blur supports-[backdrop-filter]:bg-card/70">
               <tr>
@@ -231,11 +274,11 @@ export default function VistoriasPage() {
         </div>
 
         {/* Paginação */}
-        <div className="mt-3 flex items-center justify-between gap-4">
+        <div className="mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="text-sm text-muted-foreground">
             Página {currentPage} de {totalPages}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 self-end sm:self-auto">
             <button
               className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50"
               disabled={currentPage <= 1}
