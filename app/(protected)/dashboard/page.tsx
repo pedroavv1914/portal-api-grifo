@@ -2,6 +2,7 @@
 import { useMemo, useState } from "react";
 import KpiCard from "../../../components/ui/KpiCard";
 import SectionCard from "../../../components/ui/SectionCard";
+import Tooltip from "../../../components/ui/Tooltip";
 
 type KPI = { label: string; value: number; delta?: number; color?: string; icon?: React.ReactNode };
 
@@ -12,10 +13,18 @@ export default function DashboardPage() {
   // Dados mockados e determinísticos
   const kpis: KPI[] = useMemo(
     () => [
-      { label: "Vistorias (30d)", value: 128, delta: 12, color: "#f59e0b", icon: iconClipboard() },
-      { label: "Pendentes", value: 24, delta: -3, color: "#3b82f6", icon: iconPending() },
-      { label: "Concluídas", value: 86, delta: 8, color: "#10b981", icon: iconCheck() },
-      { label: "Contestadas", value: 6, delta: 1, color: "#f43f5e", icon: iconFlag() },
+      { label: "Vistorias (30d)", value: 128, delta: 12, color: "#f59e0b", icon: (
+        <Tooltip content="Total de vistorias no período"><span>{iconClipboard()}</span></Tooltip>
+      ) },
+      { label: "Pendentes", value: 24, delta: -3, color: "#3b82f6", icon: (
+        <Tooltip content="Vistorias pendentes"><span>{iconPending()}</span></Tooltip>
+      ) },
+      { label: "Concluídas", value: 86, delta: 8, color: "#10b981", icon: (
+        <Tooltip content="Vistorias concluídas"><span>{iconCheck()}</span></Tooltip>
+      ) },
+      { label: "Contestadas", value: 6, delta: 1, color: "#f43f5e", icon: (
+        <Tooltip content="Vistorias com contestação"><span>{iconFlag()}</span></Tooltip>
+      ) },
     ],
     []
   );
@@ -56,7 +65,7 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-x-hidden">
       {/* Breadcrumbs */}
       <nav className="text-xs text-muted-foreground" aria-label="breadcrumb">
         <ol className="flex items-center gap-1">
@@ -80,24 +89,28 @@ export default function DashboardPage() {
               { id: "90d", label: "90d" },
             ] as const
           ).map((opt) => (
-            <button
-              key={opt.id}
-              onClick={() => setRange(opt.id)}
-              className={`h-9 px-3 rounded-md border text-sm ${
-                range === opt.id ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted/30"
-              }`}
-              aria-pressed={range === opt.id}
-              title={`Intervalo ${opt.label}`}
-            >
-              {opt.label}
-            </button>
+            <Tooltip key={opt.id} content={`Intervalo ${opt.label}`}>
+              <button
+                onClick={() => setRange(opt.id)}
+                className={`h-9 px-3 rounded-md border text-sm ${
+                  range === opt.id ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted/30"
+                }`}
+                aria-pressed={range === opt.id}
+              >
+                {opt.label}
+              </button>
+            </Tooltip>
           ))}
-          <button className="h-9 px-3 rounded-md border border-border hover:bg-muted/30" aria-label="Exportar dados" title="Exportar dados (mock)">
-            Exportar
-          </button>
-          <a href="/vistorias" className="h-9 px-3 rounded-md bg-primary text-primary-foreground hover:opacity-90" aria-label="Ir para vistorias">
-            Ver vistorias
-          </a>
+          <Tooltip content="Exportar dados (mock)">
+            <button className="h-9 px-3 rounded-md border border-border hover:bg-muted/30" aria-label="Exportar dados">
+              Exportar
+            </button>
+          </Tooltip>
+          <Tooltip content="Ir para vistorias">
+            <a href="/vistorias" className="h-9 px-3 rounded-md bg-primary text-primary-foreground hover:opacity-90" aria-label="Ir para vistorias">
+              Ver vistorias
+            </a>
+          </Tooltip>
         </div>
       </div>
 
@@ -118,13 +131,27 @@ export default function DashboardPage() {
       {/* Charts + Lists */}
       <section className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         {/* Bar chart */}
-        <SectionCard title={`Vistorias por dia (${range})`} subtitle="mock">
-          <div className="mt-4 h-56 flex items-end gap-2">
-            {bars.map((h, i) => (
-              <div key={i} className="flex-1 bg-muted/60 rounded-sm relative">
-                <div className="absolute inset-x-0 bottom-0 rounded-sm" style={{ height: `${(h / 35) * 100}%`, backgroundColor: "#3b82f6" }} />
-              </div>
-            ))}
+        <SectionCard title={`Vistorias por dia (${range})`} subtitle="mock" className="xl:col-span-2">
+          {/* Estatísticas rápidas */}
+          <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2"><span className="inline-block h-2 w-2 rounded-full bg-primary" aria-hidden></span>Total <span className="font-medium text-foreground tabular-nums">{bars.reduce((a,b)=>a+b,0)}</span></div>
+            <div>Média <span className="font-medium text-foreground tabular-nums">{Math.round((bars.reduce((a,b)=>a+b,0)/bars.length) as number)}</span></div>
+            <div>Pico <span className="font-medium text-foreground tabular-nums">{Math.max(...bars)}</span></div>
+          </div>
+          {/* Gráfico com linhas de grade */}
+          <div className="mt-3 h-56 relative">
+            <div className="absolute inset-0 flex flex-col justify-between opacity-30">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="border-t border-border/60" />
+              ))}
+            </div>
+            <div className="absolute inset-0 flex items-end gap-2 px-0.5">
+              {bars.map((h, i) => (
+                <div key={i} className="flex-1 bg-muted/60 rounded-sm relative">
+                  <div className="absolute inset-x-0 bottom-0 rounded-sm" style={{ height: `${(h / 35) * 100}%`, backgroundColor: "#3b82f6" }} />
+                </div>
+              ))}
+            </div>
           </div>
           <div className="mt-2 flex justify-between text-xs text-muted-foreground font-mono tabular-nums">
             {Array.from({ length: bars.length }).map((_, i) => (
