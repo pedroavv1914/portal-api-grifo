@@ -65,7 +65,7 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="space-y-6 overflow-x-hidden">
+    <div className="space-y-6">
       {/* Breadcrumbs */}
       <nav className="text-xs text-muted-foreground" aria-label="breadcrumb">
         <ol className="flex items-center gap-1">
@@ -81,7 +81,7 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-semibold">Dashboard</h1>
           <p className="text-muted-foreground text-sm">Visão geral de operações e status</p>
         </div>
-        <div className="flex items-center gap-2" role="group" aria-label="Intervalo de tempo e ações">
+        <div className="flex items-center gap-2 flex-wrap w-full md:w-auto min-w-0 justify-start md:justify-end" role="group" aria-label="Intervalo de tempo e ações">
           {(
             [
               { id: "7d", label: "7d" },
@@ -92,7 +92,7 @@ export default function DashboardPage() {
             <Tooltip key={opt.id} content={`Intervalo ${opt.label}`}>
               <button
                 onClick={() => setRange(opt.id)}
-                className={`h-9 px-3 rounded-md border text-sm ${
+                className={`h-9 px-3 rounded-md border text-sm shrink-0 ${
                   range === opt.id ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-muted/30"
                 }`}
                 aria-pressed={range === opt.id}
@@ -102,12 +102,12 @@ export default function DashboardPage() {
             </Tooltip>
           ))}
           <Tooltip content="Exportar dados (mock)">
-            <button className="h-9 px-3 rounded-md border border-border hover:bg-muted/30" aria-label="Exportar dados">
+            <button className="h-9 px-3 rounded-md border border-border hover:bg-muted/30 shrink-0" aria-label="Exportar dados">
               Exportar
             </button>
           </Tooltip>
           <Tooltip content="Ir para vistorias">
-            <a href="/vistorias" className="h-9 px-3 rounded-md bg-primary text-primary-foreground hover:opacity-90" aria-label="Ir para vistorias">
+            <a href="/vistorias" className="h-9 px-3 rounded-md bg-primary text-primary-foreground hover:opacity-90 inline-flex items-center whitespace-nowrap shrink-0" aria-label="Ir para vistorias">
               Ver vistorias
             </a>
           </Tooltip>
