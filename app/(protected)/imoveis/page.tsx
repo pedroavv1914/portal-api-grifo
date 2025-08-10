@@ -241,7 +241,67 @@ export default function ImoveisPage() {
 
       {/* Lista */}
       <SectionCard title="Lista de imóveis" subtitle="mock">
-        <div className="overflow-auto rounded-lg border border-border">
+        {/* Mobile cards (sm) */}
+        <div className="md:hidden">
+          <ul role="list" className="space-y-2">
+            {pageItems.map((im) => (
+              <li key={im.id} className="rounded-lg border border-border bg-card p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium capitalize">{im.titulo}</h3>
+                      <span className="text-[10px] text-muted-foreground">#{im.id}</span>
+                    </div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">{im.endereco}</div>
+                  </div>
+                  <div className="shrink-0">{statusBadge(im.status)}</div>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                  <div className="rounded-md border border-border/60 px-2 py-1">
+                    <div className="text-muted-foreground">Tipo</div>
+                    <div className="capitalize">{im.tipo}</div>
+                  </div>
+                  <div className="rounded-md border border-border/60 px-2 py-1">
+                    <div className="text-muted-foreground">Quartos</div>
+                    <div>{im.quartos}</div>
+                  </div>
+                  <div className="rounded-md border border-border/60 px-2 py-1">
+                    <div className="text-muted-foreground">Área (m²)</div>
+                    <div>{im.area_m2}</div>
+                  </div>
+                  <div className="rounded-md border border-border/60 px-2 py-1">
+                    <div className="text-muted-foreground">Valor (R$)</div>
+                    <div>{im.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</div>
+                  </div>
+                </div>
+                <div className="mt-3 flex justify-end gap-2">
+                  <button
+                    aria-label={`Editar imóvel ${im.titulo}`}
+                    onClick={() => openEdit(im)}
+                    className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30 text-xs"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    aria-label={`Excluir imóvel ${im.titulo}`}
+                    onClick={() => askRemove(im)}
+                    className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10 text-xs"
+                  >
+                    Excluir
+                  </button>
+                </div>
+              </li>
+            ))}
+            {pageItems.length === 0 && (
+              <li className="rounded-lg border border-border bg-card p-6 text-center text-sm text-muted-foreground" aria-live="polite">
+                Nenhum resultado para os filtros atuais.
+              </li>
+            )}
+          </ul>
+        </div>
+
+        {/* Table (md+) */}
+        <div className="hidden md:block overflow-auto rounded-lg border border-border">
           <table className="min-w-full text-sm">
             <thead className="sticky top-0 z-10 border-b bg-card/95 text-muted-foreground backdrop-blur supports-[backdrop-filter]:bg-card/70">
               <tr>
