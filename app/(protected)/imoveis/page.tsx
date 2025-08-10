@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
+import { StatusBadge } from "../../../components/ui/StatusBadge";
 
 type ImovelStatus = "ativo" | "inativo" | "alugado" | "manutencao";
 type ImovelTipo = "apartamento" | "casa" | "comercial" | "terreno";
@@ -110,6 +111,42 @@ export default function ImoveisPage() {
     setToDelete(null);
   }
 
+  function statusBadge(s: ImovelStatus) {
+    const tone: Record<ImovelStatus, "emerald" | "zinc" | "blue" | "amber"> = {
+      ativo: "emerald",
+      inativo: "zinc",
+      alugado: "blue",
+      manutencao: "amber",
+    };
+    const icon: Record<ImovelStatus, JSX.Element> = {
+      ativo: (
+        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+          <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+        </svg>
+      ),
+      inativo: (
+        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+          <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59Z" />
+        </svg>
+      ),
+      alugado: (
+        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+          <path d="M12 6a6 6 0 1 1-4.24 10.24l-2.12 2.12-1.41-1.41 2.12-2.12A6 6 0 0 1 12 6Zm0 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z" />
+        </svg>
+      ),
+      manutencao: (
+        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+          <path d="M22.7 19.3 14.4 11a6 6 0 1 0-3.4 3.4l8.3 8.3 3.4-3.4ZM4 10a4 4 0 1 1 8 0 4 4 0 0 1-8 0Z" />
+        </svg>
+      ),
+    };
+    return (
+      <StatusBadge tone={tone[s]} leftIcon={icon[s]}>
+        {s === "manutencao" ? "manutenção" : s}
+      </StatusBadge>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-end justify-between gap-4 flex-wrap">
@@ -179,7 +216,7 @@ export default function ImoveisPage() {
                   <div className="text-muted-foreground text-xs">{im.endereco}</div>
                 </td>
                 <td className="px-3 py-2 capitalize">{im.tipo}</td>
-                <td className="px-3 py-2 capitalize">{im.status}</td>
+                <td className="px-3 py-2">{statusBadge(im.status)}</td>
                 <td className="px-3 py-2">{im.quartos}</td>
                 <td className="px-3 py-2">{im.area_m2}</td>
                 <td className="px-3 py-2">{im.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
