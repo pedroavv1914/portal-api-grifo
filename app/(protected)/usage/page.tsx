@@ -107,28 +107,35 @@ export default function UsagePage() {
 
       <div className="overflow-auto rounded-lg border border-border">
         <table className="min-w-full text-sm">
-          <thead className="bg-muted/40 text-muted-foreground">
+          <colgroup>
+            <col className="w-[120px] bg-muted/20" />
+            <col />
+            <col />
+            <col className="bg-muted/10" />
+            <col className="w-[80px]" />
+          </colgroup>
+          <thead className="sticky top-0 z-10 border-b bg-card/95 text-muted-foreground backdrop-blur supports-[backdrop-filter]:bg-card/70">
             <tr>
               <th className="text-left font-medium px-3 py-2.5">Data</th>
-              <th className="text-left font-medium px-3 py-2.5">Módulo</th>
-              <th className="text-left font-medium px-3 py-2.5">Ação</th>
-              <th className="text-left font-medium px-3 py-2.5">Empresa</th>
-              <th className="text-right font-medium px-3 py-2.5">Qtd</th>
+              <th className="text-left font-medium px-3 py-2.5 border-l border-border/60">Módulo</th>
+              <th className="text-left font-medium px-3 py-2.5 border-l border-border/60">Ação</th>
+              <th className="text-left font-medium px-3 py-2.5 border-l border-border/60">Empresa</th>
+              <th className="text-right font-medium px-3 py-2.5 border-l border-border/60">Qtd</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.id} className="border-t border-border">
-                <td className="px-3 py-2">{new Date(r.data).toLocaleDateString("pt-BR")}</td>
-                <td className="px-3 py-2 capitalize">{r.modulo}</td>
-                <td className="px-3 py-2">{r.acao}</td>
-                <td className="px-3 py-2">{r.empresa}</td>
-                <td className="px-3 py-2 text-right">{r.quantidade}</td>
+              <tr key={r.id} className="border-t border-border odd:bg-background even:bg-muted/5 hover:bg-muted/20">
+                <td className="px-3 py-2 font-mono tabular-nums">{new Date(r.data).toLocaleDateString("pt-BR")}</td>
+                <td className="px-3 py-2 capitalize border-l border-border/60">{r.modulo}</td>
+                <td className="px-3 py-2 border-l border-border/60">{r.acao}</td>
+                <td className="px-3 py-2 border-l border-border/60">{r.empresa}</td>
+                <td className="px-3 py-2 text-right font-mono tabular-nums border-l border-border/60">{r.quantidade}</td>
               </tr>
             ))}
             {rows.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-3 py-10 text-center text-muted-foreground">Sem dados para os filtros atuais.</td>
+                <td colSpan={5} className="px-3 py-10 text-center text-muted-foreground" aria-live="polite">Sem dados para os filtros atuais.</td>
               </tr>
             )}
           </tbody>
