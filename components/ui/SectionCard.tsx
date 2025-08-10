@@ -5,11 +5,12 @@ type Props = {
   subtitle?: string;
   actions?: React.ReactNode;
   children: React.ReactNode;
+  className?: string;
 };
 
-export default function SectionCard({ title, subtitle, actions, children }: Props) {
+export default function SectionCard({ title, subtitle, actions, children, className }: Props) {
   return (
-    <section className="rounded-xl border border-border p-4 bg-card/60">
+    <section className={`rounded-xl border border-border p-4 bg-card/60 ${className ?? ""}`}>
       <div className="flex items-center justify-between gap-2">
         <div>
           <h3 className="font-medium leading-tight">{title}</h3>
