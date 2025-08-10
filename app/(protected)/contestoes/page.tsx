@@ -51,13 +51,40 @@ export default function ContestoesPage() {
   const pageItems = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   function statusBadge(s: ContStatus) {
-    const map: Record<ContStatus, string> = {
-      aberta: "bg-blue-500/15 text-blue-400",
-      em_analise: "bg-amber-500/15 text-amber-400",
-      aceita: "bg-emerald-500/15 text-emerald-400",
-      rejeitada: "bg-rose-500/15 text-rose-400",
+    const style: Record<ContStatus, string> = {
+      aberta: "bg-amber-500/15 text-amber-300 border border-amber-500/30",
+      em_analise: "bg-blue-500/15 text-blue-300 border border-blue-500/30",
+      aceita: "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30",
+      rejeitada: "bg-rose-500/15 text-rose-300 border border-rose-500/30",
     };
-    return <span className={`px-2 py-0.5 rounded text-xs font-medium ${map[s]}`}>{s.replace("_", " ")}</span>;
+    const icon: Record<ContStatus, JSX.Element> = {
+      aberta: (
+        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+          <path d="M12 22a10 10 0 1 1 0-20 10 10 0 0 1 0 20Zm1-7V7h-2v8h2Zm0 4v-2h-2v2h2Z" />
+        </svg>
+      ),
+      em_analise: (
+        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+          <path d="M10 3a7 7 0 1 1 5.29 11.6l4.56 4.55-1.42 1.42-4.55-4.56A7 7 0 0 1 10 3Zm0 2a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z" />
+        </svg>
+      ),
+      aceita: (
+        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+          <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+        </svg>
+      ),
+      rejeitada: (
+        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+          <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59Z" />
+        </svg>
+      ),
+    };
+    return (
+      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium leading-none ${style[s]}`}>
+        {icon[s]}
+        {s.replace("_", " ")}
+      </span>
+    );
   }
 
   function askRemove(c: Contestacao) {
@@ -117,24 +144,27 @@ export default function ContestoesPage() {
             </tr>
           </thead>
           <tbody>
-            {pageItems.map((c) => (
-              <tr key={c.id} className="border-t border-border">
-                <td className="px-3 py-2">{c.protocolo}</td>
-                <td className="px-3 py-2">{c.imovel}</td>
-                <td className="px-3 py-2">{c.autor}</td>
-                <td className="px-3 py-2">{statusBadge(c.status)}</td>
-                <td className="px-3 py-2 text-right">
-                  <div className="flex justify-end gap-2">
-                    <Link href={`/contestoes/${c.id}`} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30 inline-block">Abrir</Link>
-                    <button onClick={() => askRemove(c)} className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10">Excluir</button>
-                  </div>
+            {pageItems.length === 0 ? (
+              <tr>
+                <td className="px-3 py-10 text-center text-sm text-muted-foreground" colSpan={5}>
+                  Nenhum registro encontrado com os filtros atuais.
                 </td>
               </tr>
-            ))}
-            {pageItems.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-3 py-10 text-center text-muted-foreground">Nenhum resultado para os filtros atuais.</td>
-              </tr>
+            ) : (
+              pageItems.map((c) => (
+                <tr key={c.id} className="border-b border-border/60">
+                  <td className="px-3 py-2 font-mono text-xs text-muted-foreground">{c.protocolo}</td>
+                  <td className="px-3 py-2">{c.imovel}</td>
+                  <td className="px-3 py-2">{c.autor}</td>
+                  <td className="px-3 py-2">{statusBadge(c.status)}</td>
+                  <td className="px-3 py-2 text-right">
+                    <div className="flex justify-end gap-2">
+                      <Link href={`/contestoes/${c.id}`} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30 inline-block" aria-label={`Abrir contestação ${c.protocolo}`}>Abrir</Link>
+                      <button onClick={() => askRemove(c)} className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10" aria-label={`Excluir contestação ${c.protocolo}`}>Excluir</button>
+                    </div>
+                  </td>
+                </tr>
+              ))
             )}
           </tbody>
         </table>
