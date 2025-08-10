@@ -46,6 +46,7 @@ export default function ImoveisPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [toDelete, setToDelete] = useState<Imovel | null>(null);
   const [toast, setToast] = useState<{ message: string; tone: "success" | "error" } | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const pageSize = 10;
 
   const filtered = useMemo(() => {
@@ -184,7 +185,8 @@ export default function ImoveisPage() {
         <KpiCard label="Em manutenção" value={kpiManutencao} color="#f59e0b" />
       </section>
 
-      {/* Filtros */}
+      {/* Filtros (desktop) */}
+      <div className="hidden md:block">
       <SectionCard title="Filtros" subtitle={`${total} resultados`}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <div className="md:col-span-2 flex gap-2">
@@ -238,6 +240,26 @@ export default function ImoveisPage() {
           <button className={`px-2 py-1 rounded-md border ${tipo === "terreno" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setTipo("terreno"); setPage(1); }}>Terreno</button>
         </div>
       </SectionCard>
+      </div>
+
+      {/* Filtros (mobile trigger) */}
+      <div className="md:hidden">
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <input
+              placeholder="Buscar por título ou endereço"
+              value={query}
+              onChange={(e) => { setQuery(e.target.value); setPage(1); }}
+              className="w-full h-9 pl-8 pr-3 rounded-md border border-input bg-background"
+              aria-label="Buscar imóveis"
+            />
+            <svg aria-hidden className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4a6 6 0 104.472 10.028l4.75 4.75 1.414-1.414-4.75-4.75A6 6 0 0010 4zm-4 6a4 4 0 118 0 4 4 0 01-8 0z"/></svg>
+          </div>
+          <button onClick={() => setFiltersOpen(true)} className="h-9 px-3 rounded-md border border-border bg-card hover:bg-muted/30 text-sm" aria-haspopup="dialog" aria-expanded={filtersOpen} aria-controls="mobile-filters-sheet">
+            Filtros{(tipo !== "todos" || status !== "todos") && <span className="ml-1 inline-block h-2 w-2 rounded-full bg-primary align-middle" aria-hidden></span>}
+          </button>
+        </div>
+      </div>
 
       {/* Lista */}
       <SectionCard title="Lista de imóveis" subtitle="mock">
