@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
+import { StatusBadge } from "../../../components/ui/StatusBadge";
 
 type UserRole = "admin" | "gestor" | "corretor" | "vistoriador";
 type UserStatus = "ativo" | "inativo";
@@ -109,6 +110,30 @@ export default function UsuariosPage() {
     setToDelete(null);
   }
 
+  function statusBadge(s: UserStatus) {
+    const tone: Record<UserStatus, "emerald" | "zinc"> = {
+      ativo: "emerald",
+      inativo: "zinc",
+    };
+    const icon: Record<UserStatus, JSX.Element> = {
+      ativo: (
+        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+          <path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+        </svg>
+      ),
+      inativo: (
+        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+          <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59Z" />
+        </svg>
+      ),
+    };
+    return (
+      <StatusBadge tone={tone[s]} leftIcon={icon[s]}>
+        {s}
+      </StatusBadge>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-end justify-between gap-4 flex-wrap">
@@ -172,7 +197,7 @@ export default function UsuariosPage() {
                 <td className="px-3 py-2">{u.nome}</td>
                 <td className="px-3 py-2">{u.email}</td>
                 <td className="px-3 py-2 capitalize">{u.role}</td>
-                <td className="px-3 py-2 capitalize">{u.status}</td>
+                <td className="px-3 py-2">{statusBadge(u.status)}</td>
                 <td className="px-3 py-2 text-right">
                   <div className="flex justify-end gap-2">
                     <button onClick={() => openEdit(u)} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30">Editar</button>
@@ -183,7 +208,7 @@ export default function UsuariosPage() {
             ))}
             {pageItems.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-3 py-10 text-center text-muted-foreground">Nenhum resultado para os filtros atuais.</td>
+                <td colSpan={5} className="px-3 py-10 text-center text-muted-foreground" aria-live="polite">Nenhum resultado para os filtros atuais.</td>
               </tr>
             )}
           </tbody>
