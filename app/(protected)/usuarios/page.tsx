@@ -224,7 +224,59 @@ export default function UsuariosPage() {
 
       {/* Lista */}
       <SectionCard title="Lista de usuários" subtitle="mock">
-        <div className="overflow-auto rounded-lg border border-border">
+        {/* Mobile cards (sm) */}
+        <div className="md:hidden">
+          <ul role="list" className="space-y-2">
+            {pageItems.map((u) => (
+              <li key={u.id} className="rounded-lg border border-border bg-card p-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-medium">{u.nome}</h3>
+                      <span className="text-[10px] text-muted-foreground">#{u.id}</span>
+                    </div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">{u.email}</div>
+                  </div>
+                  <div className="shrink-0">{statusBadge(u.status)}</div>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                  <div className="rounded-md border border-border/60 px-2 py-1">
+                    <div className="text-muted-foreground">Papel</div>
+                    <div className="capitalize">{u.role}</div>
+                  </div>
+                  <div className="rounded-md border border-border/60 px-2 py-1">
+                    <div className="text-muted-foreground">Status</div>
+                    <div>{statusBadge(u.status)}</div>
+                  </div>
+                </div>
+                <div className="mt-3 flex justify-end gap-2">
+                  <button
+                    aria-label={`Editar usuário ${u.nome}`}
+                    onClick={() => openEdit(u)}
+                    className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30 text-xs"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    aria-label={`Excluir usuário ${u.nome}`}
+                    onClick={() => askRemove(u)}
+                    className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10 text-xs"
+                  >
+                    Excluir
+                  </button>
+                </div>
+              </li>
+            ))}
+            {pageItems.length === 0 && (
+              <li className="rounded-lg border border-border bg-card p-6 text-center text-sm text-muted-foreground" aria-live="polite">
+                Nenhum resultado para os filtros atuais.
+              </li>
+            )}
+          </ul>
+        </div>
+
+        {/* Table (md+) */}
+        <div className="hidden md:block overflow-auto rounded-lg border border-border">
           <table className="min-w-full text-sm">
             <thead className="sticky top-0 z-10 border-b bg-card/95 text-muted-foreground backdrop-blur supports-[backdrop-filter]:bg-card/70">
               <tr>
