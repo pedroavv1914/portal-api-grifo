@@ -116,11 +116,11 @@ export default function UsagePage() {
           </colgroup>
           <thead className="sticky top-0 z-10 border-b bg-card/95 text-muted-foreground backdrop-blur supports-[backdrop-filter]:bg-card/70">
             <tr>
-              <th className="text-left font-medium px-3 py-2.5">Data</th>
-              <th className="text-left font-medium px-3 py-2.5 border-l border-border/60">Módulo</th>
-              <th className="text-left font-medium px-3 py-2.5 border-l border-border/60">Ação</th>
-              <th className="text-left font-medium px-3 py-2.5 border-l border-border/60">Empresa</th>
-              <th className="text-right font-medium px-3 py-2.5 border-l border-border/60">Qtd</th>
+              <th scope="col" className="text-left font-medium px-3 py-2.5">Data</th>
+              <th scope="col" className="text-left font-medium px-3 py-2.5 border-l border-border/60">Módulo</th>
+              <th scope="col" className="text-left font-medium px-3 py-2.5 border-l border-border/60">Ação</th>
+              <th scope="col" className="text-left font-medium px-3 py-2.5 border-l border-border/60">Empresa</th>
+              <th scope="col" className="text-right font-medium px-3 py-2.5 border-l border-border/60">Qtd</th>
             </tr>
           </thead>
           <tbody>
