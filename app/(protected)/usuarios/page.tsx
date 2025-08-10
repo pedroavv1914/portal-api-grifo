@@ -184,11 +184,11 @@ export default function UsuariosPage() {
         <table className="min-w-full text-sm">
           <thead className="bg-muted/40 text-muted-foreground">
             <tr>
-              <th className="text-left font-medium px-3 py-2.5">Nome</th>
-              <th className="text-left font-medium px-3 py-2.5">E-mail</th>
-              <th className="text-left font-medium px-3 py-2.5">Papel</th>
-              <th className="text-left font-medium px-3 py-2.5">Status</th>
-              <th className="px-3 py-2.5"></th>
+              <th scope="col" className="text-left font-medium px-3 py-2.5">Nome</th>
+              <th scope="col" className="text-left font-medium px-3 py-2.5">E-mail</th>
+              <th scope="col" className="text-left font-medium px-3 py-2.5">Papel</th>
+              <th scope="col" className="text-left font-medium px-3 py-2.5">Status</th>
+              <th scope="col" className="px-3 py-2.5"></th>
             </tr>
           </thead>
           <tbody>
@@ -200,8 +200,8 @@ export default function UsuariosPage() {
                 <td className="px-3 py-2">{statusBadge(u.status)}</td>
                 <td className="px-3 py-2 text-right">
                   <div className="flex justify-end gap-2">
-                    <button onClick={() => openEdit(u)} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30">Editar</button>
-                    <button onClick={() => askRemove(u)} className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10">Excluir</button>
+                    <button aria-label={`Editar usuário ${u.nome}`} onClick={() => openEdit(u)} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30">Editar</button>
+                    <button aria-label={`Excluir usuário ${u.nome}`} onClick={() => askRemove(u)} className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10">Excluir</button>
                   </div>
                 </td>
               </tr>
@@ -224,10 +224,10 @@ export default function UsuariosPage() {
       </div>
 
       {isOpen && editing && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={closeModal}>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={closeModal} role="dialog" aria-modal="true" aria-labelledby="dialog-usuarios-title">
           <div className="w-full max-w-lg rounded-xl border border-border bg-card p-4 shadow-[0_0_12px_#0006]" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-medium">{editing.id ? "Editar usuário" : "Novo usuário"}</h3>
+              <h3 id="dialog-usuarios-title" className="text-lg font-medium">{editing.id ? "Editar usuário" : "Novo usuário"}</h3>
               <button className="text-sm text-muted-foreground hover:opacity-80" onClick={closeModal}>Fechar</button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
