@@ -2,6 +2,9 @@
 import Link from "next/link";
 import { StatusBadge } from "../../../components/ui/StatusBadge";
 import { useMemo, useState } from "react";
+import KpiCard from "../../../components/ui/KpiCard";
+import SectionCard from "../../../components/ui/SectionCard";
+import Tooltip from "../../../components/ui/Tooltip";
 
 type ContStatus = "aberta" | "em_analise" | "aceita" | "rejeitada";
 type Contestacao = {
@@ -47,6 +50,9 @@ export default function ContestoesPage() {
   }, [items, query, status]);
 
   const total = filtered.length;
+  const kpiAbertas = useMemo(() => filtered.filter((c) => c.status === "aberta").length, [filtered]);
+  const kpiAnalise = useMemo(() => filtered.filter((c) => c.status === "em_analise").length, [filtered]);
+  const kpiRejeitadas = useMemo(() => filtered.filter((c) => c.status === "rejeitada").length, [filtered]);
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const currentPage = Math.min(page, totalPages);
   const pageItems = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -103,80 +109,122 @@ export default function ContestoesPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6 overflow-x-hidden">
+      {/* Breadcrumbs */}
+      <nav className="text-xs text-muted-foreground" aria-label="breadcrumb">
+        <ol className="flex items-center gap-1">
+          <li><a href="/dashboard" className="hover:underline">Início</a></li>
+          <li aria-hidden className="mx-1">/</li>
+          <li aria-current="page" className="text-foreground">Contestações</li>
+        </ol>
+      </nav>
+
+      {/* Header */}
       <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-semibold">Contestações</h1>
           <p className="text-sm text-muted-foreground">Lista com filtros e paginação (mock)</p>
         </div>
+        <Tooltip content="Ver guia de políticas (mock)">
+          <a href="#" className="h-9 rounded-md border border-border px-3 text-sm hover:bg-muted/30">Guia</a>
+        </Tooltip>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <input
-          placeholder="Buscar por protocolo, imóvel ou autor"
-          value={query}
-          onChange={(e) => { setQuery(e.target.value); setPage(1); }}
-          className="h-9 px-3 rounded-md border border-input bg-background"
-        />
-        <select
-          value={status}
-          onChange={(e) => { setStatus(e.target.value as any); setPage(1); }}
-          className="h-9 px-2 rounded-md border border-input bg-background"
-        >
-          <option value="todos">Todos status</option>
-          <option value="aberta">Aberta</option>
-          <option value="em_analise">Em análise</option>
-          <option value="aceita">Aceita</option>
-          <option value="rejeitada">Rejeitada</option>
-        </select>
-        <div className="flex items-center justify-end text-sm text-muted-foreground">{total} resultados</div>
-      </div>
+      {/* KPIs */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <KpiCard label="Abertas" value={kpiAbertas} color="#f59e0b" />
+        <KpiCard label="Em análise" value={kpiAnalise} color="#3b82f6" />
+        <KpiCard label="Rejeitadas" value={kpiRejeitadas} color="#ef4444" />
+      </section>
 
-      <div className="overflow-auto rounded-lg border border-border">
-        <table className="min-w-full text-sm">
-          <thead className="bg-muted/40 text-muted-foreground">
-            <tr>
-              <th scope="col" className="text-left font-medium px-3 py-2.5">Protocolo</th>
-              <th scope="col" className="text-left font-medium px-3 py-2.5">Imóvel</th>
-              <th scope="col" className="text-left font-medium px-3 py-2.5">Autor</th>
-              <th scope="col" className="text-left font-medium px-3 py-2.5">Status</th>
-              <th scope="col" className="px-3 py-2.5"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {pageItems.length === 0 ? (
+      {/* Filtros */}
+      <SectionCard title="Filtros" subtitle={`${total} resultados`}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <input
+            placeholder="Buscar por protocolo, imóvel ou autor"
+            value={query}
+            onChange={(e) => { setQuery(e.target.value); setPage(1); }}
+            className="h-9 px-3 rounded-md border border-input bg-background"
+          />
+          <select
+            value={status}
+            onChange={(e) => { setStatus(e.target.value as any); setPage(1); }}
+            className="h-9 px-2 rounded-md border border-input bg-background"
+          >
+            <option value="todos">Todos status</option>
+            <option value="aberta">Aberta</option>
+            <option value="em_analise">Em análise</option>
+            <option value="aceita">Aceita</option>
+            <option value="rejeitada">Rejeitada</option>
+          </select>
+          <div className="flex items-center justify-end text-sm text-muted-foreground">{total} resultados</div>
+        </div>
+        {/* Quick chips status */}
+        <div className="mt-3 flex flex-wrap gap-2 text-xs" aria-label="Filtros rápidos por status">
+          <button className={`px-2 py-1 rounded-md border ${status === "todos" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setStatus("todos"); setPage(1); }}>Todos</button>
+          <button className={`px-2 py-1 rounded-md border ${status === "aberta" ? "bg-amber-500/15 border-amber-500/30 text-amber-300" : "hover:bg-muted/20"}`} onClick={() => { setStatus("aberta"); setPage(1); }}>Abertas</button>
+          <button className={`px-2 py-1 rounded-md border ${status === "em_analise" ? "bg-blue-500/15 border-blue-500/30 text-blue-300" : "hover:bg-muted/20"}`} onClick={() => { setStatus("em_analise"); setPage(1); }}>Em análise</button>
+          <button className={`px-2 py-1 rounded-md border ${status === "aceita" ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300" : "hover:bg-muted/20"}`} onClick={() => { setStatus("aceita"); setPage(1); }}>Aceitas</button>
+          <button className={`px-2 py-1 rounded-md border ${status === "rejeitada" ? "bg-rose-500/15 border-rose-500/30 text-rose-300" : "hover:bg-muted/20"}`} onClick={() => { setStatus("rejeitada"); setPage(1); }}>Rejeitadas</button>
+        </div>
+      </SectionCard>
+
+      {/* Lista */}
+      <SectionCard title="Lista de contestações" subtitle="mock">
+        <div className="overflow-auto rounded-lg border border-border">
+          <table className="min-w-full text-sm">
+            <thead className="sticky top-0 z-10 border-b bg-card/95 text-muted-foreground backdrop-blur supports-[backdrop-filter]:bg-card/70">
               <tr>
-                <td className="px-3 py-10 text-center text-sm text-muted-foreground" colSpan={5} aria-live="polite">
-                  Nenhum registro encontrado com os filtros atuais.
-                </td>
+                <th scope="col" className="text-left font-medium px-3 py-2.5">
+                  <Tooltip content="Número de protocolo"><span>Protocolo</span></Tooltip>
+                </th>
+                <th scope="col" className="text-left font-medium px-3 py-2.5">
+                  <Tooltip content="Imóvel relacionado"><span>Imóvel</span></Tooltip>
+                </th>
+                <th scope="col" className="text-left font-medium px-3 py-2.5">
+                  <Tooltip content="Quem abriu a contestação"><span>Autor</span></Tooltip>
+                </th>
+                <th scope="col" className="text-left font-medium px-3 py-2.5">
+                  <Tooltip content="Situação atual"><span>Status</span></Tooltip>
+                </th>
+                <th scope="col" className="px-3 py-2.5"></th>
               </tr>
-            ) : (
-              pageItems.map((c) => (
-                <tr key={c.id} className="border-b border-border/60">
-                  <td className="px-3 py-2 font-mono text-xs text-muted-foreground">{c.protocolo}</td>
-                  <td className="px-3 py-2">{c.imovel}</td>
-                  <td className="px-3 py-2">{c.autor}</td>
-                  <td className="px-3 py-2">{statusBadge(c.status)}</td>
-                  <td className="px-3 py-2 text-right">
-                    <div className="flex justify-end gap-2">
-                      <Link href={`/contestoes/${c.id}`} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30 inline-block" aria-label={`Abrir contestação ${c.protocolo}`}>Abrir</Link>
-                      <button onClick={() => askRemove(c)} className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10" aria-label={`Excluir contestação ${c.protocolo}`}>Excluir</button>
-                    </div>
+            </thead>
+            <tbody>
+              {pageItems.length === 0 ? (
+                <tr>
+                  <td className="px-3 py-10 text-center text-sm text-muted-foreground" colSpan={5} aria-live="polite">
+                    Nenhum registro encontrado com os filtros atuais.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="flex items-center justify-between gap-4">
-        <div className="text-sm text-muted-foreground">Página {currentPage} de {totalPages}</div>
-        <div className="flex gap-2">
-          <button className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={currentPage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</button>
-          <button className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={currentPage >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>Próxima</button>
+              ) : (
+                pageItems.map((c) => (
+                  <tr key={c.id} className="border-b border-border/60 odd:bg-background even:bg-muted/5 hover:bg-muted/20">
+                    <td className="px-3 py-2 font-mono text-xs text-muted-foreground">{c.protocolo}</td>
+                    <td className="px-3 py-2">{c.imovel}</td>
+                    <td className="px-3 py-2">{c.autor}</td>
+                    <td className="px-3 py-2">{statusBadge(c.status)}</td>
+                    <td className="px-3 py-2 text-right">
+                      <div className="flex justify-end gap-2">
+                        <Link href={`/contestoes/${c.id}`} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30 inline-block" aria-label={`Abrir contestação ${c.protocolo}`}>Abrir</Link>
+                        <button onClick={() => askRemove(c)} className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10" aria-label={`Excluir contestação ${c.protocolo}`}>Excluir</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
-      </div>
+        {/* Paginação */}
+        <div className="mt-3 flex items-center justify-between gap-4">
+          <div className="text-sm text-muted-foreground">Página {currentPage} de {totalPages}</div>
+          <div className="flex gap-2">
+            <button className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={currentPage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</button>
+            <button className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={currentPage >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>Próxima</button>
+          </div>
+        </div>
+      </SectionCard>
 
       {toDelete && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={cancelRemove} role="dialog" aria-modal="true" aria-labelledby="dialog-contestoes-remove-title">
