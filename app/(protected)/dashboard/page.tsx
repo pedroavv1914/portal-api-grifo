@@ -65,7 +65,7 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 overflow-x-hidden">
       {/* Breadcrumbs */}
       <nav className="text-xs text-muted-foreground" aria-label="breadcrumb">
         <ol className="flex items-center gap-1">
