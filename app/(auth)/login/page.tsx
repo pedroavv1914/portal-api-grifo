@@ -3,6 +3,15 @@ import { createSupabaseBrowser } from "@/lib/supabase/client";
 
 export default function LoginPage() {
   const handleLogin = async () => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !anon) {
+      console.error("Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY");
+      alert(
+        "Configure as variáveis NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY no .env.local e reinicie `npm run dev`."
+      );
+      return;
+    }
     const supabase = createSupabaseBrowser();
     await supabase.auth.signInWithOAuth({
       provider: "google",
