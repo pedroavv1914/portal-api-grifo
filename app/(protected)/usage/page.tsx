@@ -140,9 +140,45 @@ export default function UsagePage() {
         </div>
       </SectionCard>
 
-      {/* Tabela */}
+      {/* Tabela (md+) e Cards (mobile) */}
       <SectionCard title="Registros de uso" subtitle="mock">
-        <div className="overflow-auto rounded-lg border border-border">
+        {/* Mobile: cards */}
+        <div className="md:hidden space-y-2" role="list" aria-label="Registros de uso (lista)">
+          {rows.map((r) => (
+            <div key={r.id} role="listitem" className="rounded-lg border border-border bg-card/50 p-3">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <div className="text-xs text-muted-foreground">Data</div>
+                  <div className="font-mono tabular-nums">{new Date(r.data).toLocaleDateString("pt-BR")}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs text-muted-foreground">Qtd</div>
+                  <div className="font-mono tabular-nums">{r.quantidade}</div>
+                </div>
+              </div>
+              <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <div className="text-[11px] text-muted-foreground">Módulo</div>
+                  <div className="capitalize">{r.modulo}</div>
+                </div>
+                <div>
+                  <div className="text-[11px] text-muted-foreground">Ação</div>
+                  <div>{r.acao}</div>
+                </div>
+                <div className="col-span-2">
+                  <div className="text-[11px] text-muted-foreground">Empresa</div>
+                  <div>{r.empresa}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+          {rows.length === 0 && (
+            <div className="rounded-lg border border-border p-6 text-center text-muted-foreground">Sem dados para os filtros atuais.</div>
+          )}
+        </div>
+
+        {/* Desktop: tabela */}
+        <div className="hidden md:block overflow-auto rounded-lg border border-border">
           <table className="min-w-full text-sm">
             <colgroup>
               <col className="w-[120px] bg-muted/20" />
@@ -179,9 +215,9 @@ export default function UsagePage() {
           </table>
         </div>
         {/* Paginação */}
-        <div className="mt-3 flex items-center justify-between gap-4">
+        <div className="mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="text-sm text-muted-foreground">Página {current} de {totalPages}</div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 self-end sm:self-auto">
             <button className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={current <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</button>
             <button className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={current >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>Próxima</button>
           </div>
