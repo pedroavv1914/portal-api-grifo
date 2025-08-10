@@ -1,6 +1,9 @@
 "use client";
 import { useMemo, useState } from "react";
 import { StatusBadge } from "../../../components/ui/StatusBadge";
+import KpiCard from "../../../components/ui/KpiCard";
+import SectionCard from "../../../components/ui/SectionCard";
+import Tooltip from "../../../components/ui/Tooltip";
 
 type UserRole = "admin" | "gestor" | "corretor" | "vistoriador";
 type UserStatus = "ativo" | "inativo";
@@ -55,6 +58,9 @@ export default function UsuariosPage() {
   }, [items, query, role, status]);
 
   const total = filtered.length;
+  const kpiAtivos = useMemo(() => filtered.filter((u) => u.status === "ativo").length, [filtered]);
+  const kpiInativos = useMemo(() => filtered.filter((u) => u.status === "inativo").length, [filtered]);
+  const kpiAdmins = useMemo(() => filtered.filter((u) => u.role === "admin").length, [filtered]);
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const currentPage = Math.min(page, totalPages);
   const pageItems = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -135,93 +141,140 @@ export default function UsuariosPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6 overflow-x-hidden">
+      {/* Breadcrumbs */}
+      <nav className="text-xs text-muted-foreground" aria-label="breadcrumb">
+        <ol className="flex items-center gap-1">
+          <li><a href="/dashboard" className="hover:underline">Início</a></li>
+          <li aria-hidden className="mx-1">/</li>
+          <li aria-current="page" className="text-foreground">Usuários</li>
+        </ol>
+      </nav>
+
+      {/* Header */}
       <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-semibold">Usuários</h1>
           <p className="text-sm text-muted-foreground">Gestão de usuários e papéis (mock)</p>
         </div>
-        <button onClick={openCreate} className="rounded-md bg-primary text-primary-foreground px-3 py-2 text-sm font-medium hover:opacity-90">
-          Novo usuário
-        </button>
+        <Tooltip content="Criar novo usuário (mock)">
+          <button onClick={openCreate} className="h-9 rounded-md border border-border px-3 text-sm hover:bg-muted/30">
+            Novo usuário
+          </button>
+        </Tooltip>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-        <div className="md:col-span-2 flex gap-2">
-          <input
-            placeholder="Buscar por nome ou e-mail"
-            value={query}
-            onChange={(e) => { setQuery(e.target.value); setPage(1); }}
-            className="flex-1 h-9 px-3 rounded-md border border-input bg-background"
-          />
-          <select
-            value={role}
-            onChange={(e) => { setRole(e.target.value as any); setPage(1); }}
-            className="h-9 px-2 rounded-md border border-input bg-background"
-          >
-            <option value="todas">Todos papéis</option>
-            <option value="admin">Admin</option>
-            <option value="gestor">Gestor</option>
-            <option value="corretor">Corretor</option>
-            <option value="vistoriador">Vistoriador</option>
-          </select>
-          <select
-            value={status}
-            onChange={(e) => { setStatus(e.target.value as any); setPage(1); }}
-            className="h-9 px-2 rounded-md border border-input bg-background"
-          >
-            <option value="todos">Todos status</option>
-            <option value="ativo">Ativo</option>
-            <option value="inativo">Inativo</option>
-          </select>
-        </div>
-        <div className="flex items-center justify-end gap-2">
-          <span className="text-sm text-muted-foreground">{total} resultados</span>
-        </div>
-      </div>
+      {/* KPIs */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <KpiCard label="Ativos" value={kpiAtivos} color="#10b981" />
+        <KpiCard label="Inativos" value={kpiInativos} color="#71717a" />
+        <KpiCard label="Admins" value={kpiAdmins} color="#f59e0b" />
+      </section>
 
-      <div className="overflow-auto rounded-lg border border-border">
-        <table className="min-w-full text-sm">
-          <thead className="bg-muted/40 text-muted-foreground">
-            <tr>
-              <th scope="col" className="text-left font-medium px-3 py-2.5">Nome</th>
-              <th scope="col" className="text-left font-medium px-3 py-2.5">E-mail</th>
-              <th scope="col" className="text-left font-medium px-3 py-2.5">Papel</th>
-              <th scope="col" className="text-left font-medium px-3 py-2.5">Status</th>
-              <th scope="col" className="px-3 py-2.5"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {pageItems.map((u) => (
-              <tr key={u.id} className="border-t border-border">
-                <td className="px-3 py-2">{u.nome}</td>
-                <td className="px-3 py-2">{u.email}</td>
-                <td className="px-3 py-2 capitalize">{u.role}</td>
-                <td className="px-3 py-2">{statusBadge(u.status)}</td>
-                <td className="px-3 py-2 text-right">
-                  <div className="flex justify-end gap-2">
-                    <button aria-label={`Editar usuário ${u.nome}`} onClick={() => openEdit(u)} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30">Editar</button>
-                    <button aria-label={`Excluir usuário ${u.nome}`} onClick={() => askRemove(u)} className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10">Excluir</button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {pageItems.length === 0 && (
+      {/* Filtros */}
+      <SectionCard title="Filtros" subtitle={`${total} resultados`}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div className="md:col-span-2 flex gap-2">
+            <input
+              placeholder="Buscar por nome ou e-mail"
+              value={query}
+              onChange={(e) => { setQuery(e.target.value); setPage(1); }}
+              className="flex-1 h-9 px-3 rounded-md border border-input bg-background"
+            />
+            <select
+              value={role}
+              onChange={(e) => { setRole(e.target.value as any); setPage(1); }}
+              className="h-9 px-2 rounded-md border border-input bg-background"
+            >
+              <option value="todas">Todos papéis</option>
+              <option value="admin">Admin</option>
+              <option value="gestor">Gestor</option>
+              <option value="corretor">Corretor</option>
+              <option value="vistoriador">Vistoriador</option>
+            </select>
+            <select
+              value={status}
+              onChange={(e) => { setStatus(e.target.value as any); setPage(1); }}
+              className="h-9 px-2 rounded-md border border-input bg-background"
+            >
+              <option value="todos">Todos status</option>
+              <option value="ativo">Ativo</option>
+              <option value="inativo">Inativo</option>
+            </select>
+          </div>
+          <div className="flex items-center justify-end gap-2">
+            <span className="text-sm text-muted-foreground">{total} resultados</span>
+          </div>
+        </div>
+        {/* Quick chips */}
+        <div className="mt-3 flex flex-wrap gap-2 text-xs" aria-label="Filtros rápidos">
+          {/* Status chips */}
+          <button className={`px-2 py-1 rounded-md border ${status === "todos" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setStatus("todos"); setPage(1); }}>Todos status</button>
+          <button className={`px-2 py-1 rounded-md border ${status === "ativo" ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300" : "hover:bg-muted/20"}`} onClick={() => { setStatus("ativo"); setPage(1); }}>Ativo</button>
+          <button className={`px-2 py-1 rounded-md border ${status === "inativo" ? "bg-zinc-500/15 border-zinc-500/30 text-zinc-300" : "hover:bg-muted/20"}`} onClick={() => { setStatus("inativo"); setPage(1); }}>Inativo</button>
+          {/* Role chips */}
+          <span className="mx-2 h-4 w-px bg-border align-middle" aria-hidden></span>
+          <button className={`px-2 py-1 rounded-md border ${role === "todas" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setRole("todas"); setPage(1); }}>Todos papéis</button>
+          <button className={`px-2 py-1 rounded-md border ${role === "admin" ? "bg-amber-500/15 border-amber-500/30 text-amber-300" : "hover:bg-muted/20"}`} onClick={() => { setRole("admin"); setPage(1); }}>Admin</button>
+          <button className={`px-2 py-1 rounded-md border ${role === "gestor" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setRole("gestor"); setPage(1); }}>Gestor</button>
+          <button className={`px-2 py-1 rounded-md border ${role === "corretor" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setRole("corretor"); setPage(1); }}>Corretor</button>
+          <button className={`px-2 py-1 rounded-md border ${role === "vistoriador" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setRole("vistoriador"); setPage(1); }}>Vistoriador</button>
+        </div>
+      </SectionCard>
+
+      {/* Lista */}
+      <SectionCard title="Lista de usuários" subtitle="mock">
+        <div className="overflow-auto rounded-lg border border-border">
+          <table className="min-w-full text-sm">
+            <thead className="sticky top-0 z-10 border-b bg-card/95 text-muted-foreground backdrop-blur supports-[backdrop-filter]:bg-card/70">
               <tr>
-                <td colSpan={5} className="px-3 py-10 text-center text-muted-foreground" aria-live="polite">Nenhum resultado para os filtros atuais.</td>
+                <th scope="col" className="text-left font-medium px-3 py-2.5">
+                  <Tooltip content="Nome completo"><span>Nome</span></Tooltip>
+                </th>
+                <th scope="col" className="text-left font-medium px-3 py-2.5">
+                  <Tooltip content="E-mail corporativo"><span>E-mail</span></Tooltip>
+                </th>
+                <th scope="col" className="text-left font-medium px-3 py-2.5">
+                  <Tooltip content="Papel do usuário no portal"><span>Papel</span></Tooltip>
+                </th>
+                <th scope="col" className="text-left font-medium px-3 py-2.5">
+                  <Tooltip content="Situação de acesso"><span>Status</span></Tooltip>
+                </th>
+                <th scope="col" className="px-3 py-2.5"></th>
               </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="flex items-center justify-between gap-4">
-        <div className="text-sm text-muted-foreground">Página {currentPage} de {totalPages}</div>
-        <div className="flex gap-2">
-          <button className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={currentPage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</button>
-          <button className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={currentPage >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>Próxima</button>
+            </thead>
+            <tbody>
+              {pageItems.map((u) => (
+                <tr key={u.id} className="border-t border-border odd:bg-background even:bg-muted/5 hover:bg-muted/20">
+                  <td className="px-3 py-2">{u.nome}</td>
+                  <td className="px-3 py-2">{u.email}</td>
+                  <td className="px-3 py-2 capitalize">{u.role}</td>
+                  <td className="px-3 py-2">{statusBadge(u.status)}</td>
+                  <td className="px-3 py-2 text-right">
+                    <div className="flex justify-end gap-2">
+                      <button aria-label={`Editar usuário ${u.nome}`} onClick={() => openEdit(u)} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30">Editar</button>
+                      <button aria-label={`Excluir usuário ${u.nome}`} onClick={() => askRemove(u)} className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10">Excluir</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {pageItems.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-3 py-10 text-center text-muted-foreground" aria-live="polite">Nenhum resultado para os filtros atuais.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-      </div>
+        {/* Paginação */}
+        <div className="mt-3 flex items-center justify-between gap-4">
+          <div className="text-sm text-muted-foreground">Página {currentPage} de {totalPages}</div>
+          <div className="flex gap-2">
+            <button className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={currentPage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</button>
+            <button className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={currentPage >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>Próxima</button>
+          </div>
+        </div>
+      </SectionCard>
 
       {isOpen && editing && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={closeModal} role="dialog" aria-modal="true" aria-labelledby="dialog-usuarios-title">
