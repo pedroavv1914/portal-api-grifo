@@ -136,17 +136,17 @@ export default function ContestoesPage() {
         <table className="min-w-full text-sm">
           <thead className="bg-muted/40 text-muted-foreground">
             <tr>
-              <th className="text-left font-medium px-3 py-2.5">Protocolo</th>
-              <th className="text-left font-medium px-3 py-2.5">Imóvel</th>
-              <th className="text-left font-medium px-3 py-2.5">Autor</th>
-              <th className="text-left font-medium px-3 py-2.5">Status</th>
-              <th className="px-3 py-2.5"></th>
+              <th scope="col" className="text-left font-medium px-3 py-2.5">Protocolo</th>
+              <th scope="col" className="text-left font-medium px-3 py-2.5">Imóvel</th>
+              <th scope="col" className="text-left font-medium px-3 py-2.5">Autor</th>
+              <th scope="col" className="text-left font-medium px-3 py-2.5">Status</th>
+              <th scope="col" className="px-3 py-2.5"></th>
             </tr>
           </thead>
           <tbody>
             {pageItems.length === 0 ? (
               <tr>
-                <td className="px-3 py-10 text-center text-sm text-muted-foreground" colSpan={5}>
+                <td className="px-3 py-10 text-center text-sm text-muted-foreground" colSpan={5} aria-live="polite">
                   Nenhum registro encontrado com os filtros atuais.
                 </td>
               </tr>
@@ -179,9 +179,9 @@ export default function ContestoesPage() {
       </div>
 
       {toDelete && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={cancelRemove}>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={cancelRemove} role="dialog" aria-modal="true" aria-labelledby="dialog-contestoes-remove-title">
           <div className="w-full max-w-md rounded-xl border border-border bg-card p-4" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-medium mb-2">Confirmar exclusão</h3>
+            <h3 id="dialog-contestoes-remove-title" className="text-lg font-medium mb-2">Confirmar exclusão</h3>
             <p className="text-sm text-muted-foreground mb-4">Tem certeza que deseja excluir "{toDelete.protocolo}"?</p>
             <div className="flex justify-end gap-2">
               <button className="px-3 py-2 rounded-md border border-border" onClick={cancelRemove}>Cancelar</button>
