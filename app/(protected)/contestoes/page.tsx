@@ -171,7 +171,36 @@ export default function ContestoesPage() {
 
       {/* Lista */}
       <SectionCard title="Lista de contestações" subtitle="mock">
-        <div className="overflow-auto rounded-lg border border-border">
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-2">
+          {pageItems.length === 0 ? (
+            <div className="px-3 py-10 text-center text-sm text-muted-foreground" aria-live="polite">
+              Nenhum registro encontrado com os filtros atuais.
+            </div>
+          ) : (
+            pageItems.map((c) => (
+              <div key={c.id} className="rounded-lg border border-border bg-card p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-[11px] font-mono text-muted-foreground">{c.protocolo}</div>
+                    <div className="mt-1 text-sm font-medium leading-5">{c.imovel}</div>
+                  </div>
+                  <div className="flex shrink-0 gap-2">
+                    <Link href={`/contestoes/${c.id}`} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30 inline-block" aria-label={`Abrir contestação ${c.protocolo}`}>Abrir</Link>
+                    <button onClick={() => askRemove(c)} className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10" aria-label={`Excluir contestação ${c.protocolo}`}>Excluir</button>
+                  </div>
+                </div>
+                <div className="mt-2 grid grid-cols-1 gap-1 text-xs text-muted-foreground">
+                  <div><span className="sr-only">Autor:</span>{c.autor}</div>
+                  <div className="mt-1"><span className="sr-only">Status:</span>{statusBadge(c.status)}</div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden md:block overflow-auto rounded-lg border border-border">
           <table className="min-w-full text-sm">
             <thead className="sticky top-0 z-10 border-b bg-card/95 text-muted-foreground backdrop-blur supports-[backdrop-filter]:bg-card/70">
               <tr>
