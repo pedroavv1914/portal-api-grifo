@@ -386,6 +386,74 @@ export default function ImoveisPage() {
         </div>
       </SectionCard>
 
+      {/* Mobile Filters Modal (Bottom Sheet) */}
+      {filtersOpen && (
+        <div className="fixed inset-0 z-50 grid place-items-end bg-black/50" role="dialog" aria-modal="true" aria-labelledby="mobile-filters-title" id="mobile-filters-sheet" onClick={() => setFiltersOpen(false)}>
+          <div className="w-full rounded-t-2xl border border-border bg-card p-4 shadow-xl max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 id="mobile-filters-title" className="text-base font-semibold">Filtros</h3>
+                <p className="text-xs text-muted-foreground">{total} resultados</p>
+              </div>
+              <button className="text-sm text-muted-foreground hover:opacity-80" onClick={() => setFiltersOpen(false)} aria-label="Fechar filtros">Fechar</button>
+            </div>
+            <div className="mt-3 grid grid-cols-1 gap-3">
+              <div className="relative">
+                <input
+                  placeholder="Buscar por título ou endereço"
+                  value={query}
+                  onChange={(e) => { setQuery(e.target.value); setPage(1); }}
+                  className="w-full h-10 pl-9 pr-3 rounded-md border border-input bg-background"
+                />
+                <svg aria-hidden className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4a6 6 0 104.472 10.028l4.75 4.75 1.414-1.414-4.75-4.75A6 6 0 0010 4zm-4 6a4 4 0 118 0 4 4 0 01-8 0z"/></svg>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-xs text-muted-foreground">Tipo</label>
+                  <select value={tipo} onChange={(e) => { setTipo(e.target.value as any); setPage(1); }} className="mt-1 h-10 w-full px-2 rounded-md border border-input bg-background">
+                    <option value="todos">Todos tipos</option>
+                    <option value="apartamento">Apartamento</option>
+                    <option value="casa">Casa</option>
+                    <option value="comercial">Comercial</option>
+                    <option value="terreno">Terreno</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground">Status</label>
+                  <select value={status} onChange={(e) => { setStatus(e.target.value as any); setPage(1); }} className="mt-1 h-10 w-full px-2 rounded-md border border-input bg-background">
+                    <option value="todos">Todos status</option>
+                    <option value="ativo">Ativo</option>
+                    <option value="inativo">Inativo</option>
+                    <option value="alugado">Alugado</option>
+                    <option value="manutencao">Manutenção</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground mb-2">Filtros rápidos</div>
+                <div className="flex flex-wrap gap-2 text-xs">
+                  <button className={`px-2 py-1 rounded-md border ${status === "todos" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setStatus("todos"); setPage(1); }}>Todos status</button>
+                  <button className={`px-2 py-1 rounded-md border ${status === "ativo" ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300" : "hover:bg-muted/20"}`} onClick={() => { setStatus("ativo"); setPage(1); }}>Ativo</button>
+                  <button className={`px-2 py-1 rounded-md border ${status === "inativo" ? "bg-zinc-500/15 border-zinc-500/30 text-zinc-300" : "hover:bg-muted/20"}`} onClick={() => { setStatus("inativo"); setPage(1); }}>Inativo</button>
+                  <button className={`px-2 py-1 rounded-md border ${status === "alugado" ? "bg-blue-500/15 border-blue-500/30 text-blue-300" : "hover:bg-muted/20"}`} onClick={() => { setStatus("alugado"); setPage(1); }}>Alugado</button>
+                  <button className={`px-2 py-1 rounded-md border ${status === "manutencao" ? "bg-amber-500/15 border-amber-500/30 text-amber-300" : "hover:bg-muted/20"}`} onClick={() => { setStatus("manutencao"); setPage(1); }}>Manutenção</button>
+                  <span className="mx-2 h-4 w-px bg-border align-middle" aria-hidden></span>
+                  <button className={`px-2 py-1 rounded-md border ${tipo === "todos" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setTipo("todos"); setPage(1); }}>Todos tipos</button>
+                  <button className={`px-2 py-1 rounded-md border ${tipo === "apartamento" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setTipo("apartamento"); setPage(1); }}>Apartamento</button>
+                  <button className={`px-2 py-1 rounded-md border ${tipo === "casa" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setTipo("casa"); setPage(1); }}>Casa</button>
+                  <button className={`px-2 py-1 rounded-md border ${tipo === "comercial" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setTipo("comercial"); setPage(1); }}>Comercial</button>
+                  <button className={`px-2 py-1 rounded-md border ${tipo === "terreno" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setTipo("terreno"); setPage(1); }}>Terreno</button>
+                </div>
+              </div>
+              <div className="mt-2 flex justify-between">
+                <button className="px-3 py-2 rounded-md border border-border text-sm" onClick={() => { setQuery(""); setTipo("todos"); setStatus("todos"); setPage(1); setFiltersOpen(false); }}>Limpar</button>
+                <button className="px-3 py-2 rounded-md bg-primary text-primary-foreground text-sm" onClick={() => { setPage(1); setFiltersOpen(false); }}>Aplicar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal simples para criar/editar */}
       {isOpen && editing && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={closeModal} role="dialog" aria-modal="true" aria-labelledby="dialog-imoveis-title">

@@ -45,6 +45,7 @@ export default function UsuariosPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [toDelete, setToDelete] = useState<Usuario | null>(null);
   const [toast, setToast] = useState<{ message: string; tone: "success" | "error" } | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const pageSize = 10;
 
   const filtered = useMemo(() => {
@@ -171,7 +172,8 @@ export default function UsuariosPage() {
         <KpiCard label="Admins" value={kpiAdmins} color="#f59e0b" />
       </section>
 
-      {/* Filtros */}
+      {/* Filtros (desktop) */}
+      <div className="hidden md:block">
       <SectionCard title="Filtros" subtitle={`${total} resultados`}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           <div className="md:col-span-2 flex gap-2">
@@ -221,6 +223,26 @@ export default function UsuariosPage() {
           <button className={`px-2 py-1 rounded-md border ${role === "vistoriador" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setRole("vistoriador"); setPage(1); }}>Vistoriador</button>
         </div>
       </SectionCard>
+      </div>
+
+      {/* Filtros (mobile trigger) */}
+      <div className="md:hidden">
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <input
+              placeholder="Buscar por nome ou e-mail"
+              value={query}
+              onChange={(e) => { setQuery(e.target.value); setPage(1); }}
+              className="w-full h-9 pl-8 pr-3 rounded-md border border-input bg-background"
+              aria-label="Buscar usuários"
+            />
+            <svg aria-hidden className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4a6 6 0 104.472 10.028l4.75 4.75 1.414-1.414-4.75-4.75A6 6 0 0010 4zm-4 6a4 4 0 118 0 4 4 0 01-8 0z"/></svg>
+          </div>
+          <button onClick={() => setFiltersOpen(true)} className="h-9 px-3 rounded-md border border-border bg-card hover:bg-muted/30 text-sm" aria-haspopup="dialog" aria-expanded={filtersOpen} aria-controls="mobile-filters-sheet-usuarios">
+            Filtros{(role !== "todas" || status !== "todos") && <span className="ml-1 inline-block h-2 w-2 rounded-full bg-primary align-middle" aria-hidden></span>}
+          </button>
+        </div>
+      </div>
 
       {/* Lista */}
       <SectionCard title="Lista de usuários" subtitle="mock">
@@ -327,6 +349,70 @@ export default function UsuariosPage() {
           </div>
         </div>
       </SectionCard>
+
+      {/* Mobile Filters Modal (Bottom Sheet) */}
+      {filtersOpen && (
+        <div className="fixed inset-0 z-50 grid place-items-end bg-black/50" role="dialog" aria-modal="true" aria-labelledby="mobile-filters-title-usuarios" id="mobile-filters-sheet-usuarios" onClick={() => setFiltersOpen(false)}>
+          <div className="w-full rounded-t-2xl border border-border bg-card p-4 shadow-xl max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 id="mobile-filters-title-usuarios" className="text-base font-semibold">Filtros</h3>
+                <p className="text-xs text-muted-foreground">{total} resultados</p>
+              </div>
+              <button className="text-sm text-muted-foreground hover:opacity-80" onClick={() => setFiltersOpen(false)} aria-label="Fechar filtros">Fechar</button>
+            </div>
+            <div className="mt-3 grid grid-cols-1 gap-3">
+              <div className="relative">
+                <input
+                  placeholder="Buscar por nome ou e-mail"
+                  value={query}
+                  onChange={(e) => { setQuery(e.target.value); setPage(1); }}
+                  className="w-full h-10 pl-9 pr-3 rounded-md border border-input bg-background"
+                />
+                <svg aria-hidden className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4a6 6 0 104.472 10.028l4.75 4.75 1.414-1.414-4.75-4.75A6 6 0 0010 4zm-4 6a4 4 0 118 0 4 4 0 01-8 0z"/></svg>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-xs text-muted-foreground">Papel</label>
+                  <select value={role} onChange={(e) => { setRole(e.target.value as any); setPage(1); }} className="mt-1 h-10 w-full px-2 rounded-md border border-input bg-background">
+                    <option value="todas">Todos papéis</option>
+                    <option value="admin">Admin</option>
+                    <option value="gestor">Gestor</option>
+                    <option value="corretor">Corretor</option>
+                    <option value="vistoriador">Vistoriador</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground">Status</label>
+                  <select value={status} onChange={(e) => { setStatus(e.target.value as any); setPage(1); }} className="mt-1 h-10 w-full px-2 rounded-md border border-input bg-background">
+                    <option value="todos">Todos status</option>
+                    <option value="ativo">Ativo</option>
+                    <option value="inativo">Inativo</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground mb-2">Filtros rápidos</div>
+                <div className="flex flex-wrap gap-2 text-xs">
+                  <button className={`px-2 py-1 rounded-md border ${status === "todos" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setStatus("todos"); setPage(1); }}>Todos status</button>
+                  <button className={`px-2 py-1 rounded-md border ${status === "ativo" ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300" : "hover:bg-muted/20"}`} onClick={() => { setStatus("ativo"); setPage(1); }}>Ativo</button>
+                  <button className={`px-2 py-1 rounded-md border ${status === "inativo" ? "bg-zinc-500/15 border-zinc-500/30 text-zinc-300" : "hover:bg-muted/20"}`} onClick={() => { setStatus("inativo"); setPage(1); }}>Inativo</button>
+                  <span className="mx-2 h-4 w-px bg-border align-middle" aria-hidden></span>
+                  <button className={`px-2 py-1 rounded-md border ${role === "todas" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setRole("todas"); setPage(1); }}>Todos papéis</button>
+                  <button className={`px-2 py-1 rounded-md border ${role === "admin" ? "bg-amber-500/15 border-amber-500/30 text-amber-300" : "hover:bg-muted/20"}`} onClick={() => { setRole("admin"); setPage(1); }}>Admin</button>
+                  <button className={`px-2 py-1 rounded-md border ${role === "gestor" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setRole("gestor"); setPage(1); }}>Gestor</button>
+                  <button className={`px-2 py-1 rounded-md border ${role === "corretor" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setRole("corretor"); setPage(1); }}>Corretor</button>
+                  <button className={`px-2 py-1 rounded-md border ${role === "vistoriador" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setRole("vistoriador"); setPage(1); }}>Vistoriador</button>
+                </div>
+              </div>
+              <div className="mt-2 flex justify-between">
+                <button className="px-3 py-2 rounded-md border border-border text-sm" onClick={() => { setQuery(""); setRole("todas"); setStatus("todos"); setPage(1); setFiltersOpen(false); }}>Limpar</button>
+                <button className="px-3 py-2 rounded-md bg-primary text-primary-foreground text-sm" onClick={() => { setPage(1); setFiltersOpen(false); }}>Aplicar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isOpen && editing && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={closeModal} role="dialog" aria-modal="true" aria-labelledby="dialog-usuarios-title">
