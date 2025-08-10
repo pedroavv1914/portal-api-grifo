@@ -1,6 +1,9 @@
 "use client";
 import { useMemo, useState } from "react";
 import { StatusBadge } from "../../../components/ui/StatusBadge";
+import KpiCard from "../../../components/ui/KpiCard";
+import SectionCard from "../../../components/ui/SectionCard";
+import Tooltip from "../../../components/ui/Tooltip";
 
 type ImovelStatus = "ativo" | "inativo" | "alugado" | "manutencao";
 type ImovelTipo = "apartamento" | "casa" | "comercial" | "terreno";
@@ -56,6 +59,9 @@ export default function ImoveisPage() {
   }, [items, query, tipo, status]);
 
   const total = filtered.length;
+  const kpiAtivos = useMemo(() => filtered.filter((im) => im.status === "ativo").length, [filtered]);
+  const kpiAlugados = useMemo(() => filtered.filter((im) => im.status === "alugado").length, [filtered]);
+  const kpiManutencao = useMemo(() => filtered.filter((im) => im.status === "manutencao").length, [filtered]);
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const currentPage = Math.min(page, totalPages);
   const pageItems = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -148,102 +154,155 @@ export default function ImoveisPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6 overflow-x-hidden">
+      {/* Breadcrumbs */}
+      <nav className="text-xs text-muted-foreground" aria-label="breadcrumb">
+        <ol className="flex items-center gap-1">
+          <li><a href="/dashboard" className="hover:underline">Início</a></li>
+          <li aria-hidden className="mx-1">/</li>
+          <li aria-current="page" className="text-foreground">Imóveis</li>
+        </ol>
+      </nav>
+
+      {/* Header */}
       <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-semibold">Imóveis</h1>
           <p className="text-sm text-muted-foreground">UI de lista e cadastro (mock)</p>
         </div>
-        <button onClick={openCreate} className="rounded-md bg-primary text-primary-foreground px-3 py-2 text-sm font-medium hover:opacity-90">
-          Novo imóvel
-        </button>
+        <Tooltip content="Criar novo imóvel (mock)">
+          <button onClick={openCreate} className="h-9 rounded-md border border-border px-3 text-sm hover:bg-muted/30">
+            Novo imóvel
+          </button>
+        </Tooltip>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-        <div className="md:col-span-2 flex gap-2">
-          <input
-            placeholder="Buscar por título ou endereço"
-            value={query}
-            onChange={(e) => { setQuery(e.target.value); setPage(1); }}
-            className="flex-1 h-9 px-3 rounded-md border border-input bg-background"
-          />
-          <select
-            value={tipo}
-            onChange={(e) => { setTipo(e.target.value as any); setPage(1); }}
-            className="h-9 px-2 rounded-md border border-input bg-background"
-          >
-            <option value="todos">Todos tipos</option>
-            <option value="apartamento">Apartamento</option>
-            <option value="casa">Casa</option>
-            <option value="comercial">Comercial</option>
-            <option value="terreno">Terreno</option>
-          </select>
-          <select
-            value={status}
-            onChange={(e) => { setStatus(e.target.value as any); setPage(1); }}
-            className="h-9 px-2 rounded-md border border-input bg-background"
-          >
-            <option value="todos">Todos status</option>
-            <option value="ativo">Ativo</option>
-            <option value="inativo">Inativo</option>
-            <option value="alugado">Alugado</option>
-            <option value="manutencao">Manutenção</option>
-          </select>
-        </div>
-        <div className="flex items-center justify-end gap-2">
-          <span className="text-sm text-muted-foreground">{total} resultados</span>
-        </div>
-      </div>
+      {/* KPIs */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <KpiCard label="Ativos" value={kpiAtivos} color="#10b981" />
+        <KpiCard label="Alugados" value={kpiAlugados} color="#3b82f6" />
+        <KpiCard label="Em manutenção" value={kpiManutencao} color="#f59e0b" />
+      </section>
 
-      <div className="overflow-auto rounded-lg border border-border">
-        <table className="min-w-full text-sm">
-          <thead className="bg-muted/40 text-muted-foreground">
-            <tr>
-              <th scope="col" className="text-left font-medium px-3 py-2.5">Imóvel</th>
-              <th scope="col" className="text-left font-medium px-3 py-2.5">Tipo</th>
-              <th scope="col" className="text-left font-medium px-3 py-2.5">Status</th>
-              <th scope="col" className="text-left font-medium px-3 py-2.5">Quartos</th>
-              <th scope="col" className="text-left font-medium px-3 py-2.5">Área (m²)</th>
-              <th scope="col" className="text-left font-medium px-3 py-2.5">Valor (R$)</th>
-              <th scope="col" className="px-3 py-2.5"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {pageItems.map((im) => (
-              <tr key={im.id} className="border-t border-border">
-                <td className="px-3 py-2">
-                  <div className="font-medium">{im.titulo}</div>
-                  <div className="text-muted-foreground text-xs">{im.endereco}</div>
-                </td>
-                <td className="px-3 py-2 capitalize">{im.tipo}</td>
-                <td className="px-3 py-2">{statusBadge(im.status)}</td>
-                <td className="px-3 py-2">{im.quartos}</td>
-                <td className="px-3 py-2">{im.area_m2}</td>
-                <td className="px-3 py-2">{im.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
-                <td className="px-3 py-2 text-right">
-                  <div className="flex justify-end gap-2">
-                    <button aria-label={`Editar imóvel ${im.titulo}`} onClick={() => openEdit(im)} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30">Editar</button>
-                    <button aria-label={`Excluir imóvel ${im.titulo}`} onClick={() => askRemove(im)} className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10">Excluir</button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {pageItems.length === 0 && (
+      {/* Filtros */}
+      <SectionCard title="Filtros" subtitle={`${total} resultados`}>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div className="md:col-span-2 flex gap-2">
+            <input
+              placeholder="Buscar por título ou endereço"
+              value={query}
+              onChange={(e) => { setQuery(e.target.value); setPage(1); }}
+              className="flex-1 h-9 px-3 rounded-md border border-input bg-background"
+            />
+            <select
+              value={tipo}
+              onChange={(e) => { setTipo(e.target.value as any); setPage(1); }}
+              className="h-9 px-2 rounded-md border border-input bg-background"
+            >
+              <option value="todos">Todos tipos</option>
+              <option value="apartamento">Apartamento</option>
+              <option value="casa">Casa</option>
+              <option value="comercial">Comercial</option>
+              <option value="terreno">Terreno</option>
+            </select>
+            <select
+              value={status}
+              onChange={(e) => { setStatus(e.target.value as any); setPage(1); }}
+              className="h-9 px-2 rounded-md border border-input bg-background"
+            >
+              <option value="todos">Todos status</option>
+              <option value="ativo">Ativo</option>
+              <option value="inativo">Inativo</option>
+              <option value="alugado">Alugado</option>
+              <option value="manutencao">Manutenção</option>
+            </select>
+          </div>
+          <div className="flex items-center justify-end gap-2">
+            <span className="text-sm text-muted-foreground">{total} resultados</span>
+          </div>
+        </div>
+        {/* Quick chips */}
+        <div className="mt-3 flex flex-wrap gap-2 text-xs" aria-label="Filtros rápidos">
+          {/* Status chips */}
+          <button className={`px-2 py-1 rounded-md border ${status === "todos" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setStatus("todos"); setPage(1); }}>Todos status</button>
+          <button className={`px-2 py-1 rounded-md border ${status === "ativo" ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300" : "hover:bg-muted/20"}`} onClick={() => { setStatus("ativo"); setPage(1); }}>Ativo</button>
+          <button className={`px-2 py-1 rounded-md border ${status === "inativo" ? "bg-zinc-500/15 border-zinc-500/30 text-zinc-300" : "hover:bg-muted/20"}`} onClick={() => { setStatus("inativo"); setPage(1); }}>Inativo</button>
+          <button className={`px-2 py-1 rounded-md border ${status === "alugado" ? "bg-blue-500/15 border-blue-500/30 text-blue-300" : "hover:bg-muted/20"}`} onClick={() => { setStatus("alugado"); setPage(1); }}>Alugado</button>
+          <button className={`px-2 py-1 rounded-md border ${status === "manutencao" ? "bg-amber-500/15 border-amber-500/30 text-amber-300" : "hover:bg-muted/20"}`} onClick={() => { setStatus("manutencao"); setPage(1); }}>Manutenção</button>
+          {/* Tipo chips */}
+          <span className="mx-2 h-4 w-px bg-border align-middle" aria-hidden></span>
+          <button className={`px-2 py-1 rounded-md border ${tipo === "todos" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setTipo("todos"); setPage(1); }}>Todos tipos</button>
+          <button className={`px-2 py-1 rounded-md border ${tipo === "apartamento" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setTipo("apartamento"); setPage(1); }}>Apartamento</button>
+          <button className={`px-2 py-1 rounded-md border ${tipo === "casa" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setTipo("casa"); setPage(1); }}>Casa</button>
+          <button className={`px-2 py-1 rounded-md border ${tipo === "comercial" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setTipo("comercial"); setPage(1); }}>Comercial</button>
+          <button className={`px-2 py-1 rounded-md border ${tipo === "terreno" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setTipo("terreno"); setPage(1); }}>Terreno</button>
+        </div>
+      </SectionCard>
+
+      {/* Lista */}
+      <SectionCard title="Lista de imóveis" subtitle="mock">
+        <div className="overflow-auto rounded-lg border border-border">
+          <table className="min-w-full text-sm">
+            <thead className="sticky top-0 z-10 border-b bg-card/95 text-muted-foreground backdrop-blur supports-[backdrop-filter]:bg-card/70">
               <tr>
-                <td colSpan={7} className="px-3 py-10 text-center text-muted-foreground" aria-live="polite">Nenhum resultado para os filtros atuais.</td>
+                <th scope="col" className="text-left font-medium px-3 py-2.5">
+                  <Tooltip content="Título do imóvel e endereço"><span>Imóvel</span></Tooltip>
+                </th>
+                <th scope="col" className="text-left font-medium px-3 py-2.5">
+                  <Tooltip content="Tipo cadastrado"><span>Tipo</span></Tooltip>
+                </th>
+                <th scope="col" className="text-left font-medium px-3 py-2.5">
+                  <Tooltip content="Situação"><span>Status</span></Tooltip>
+                </th>
+                <th scope="col" className="text-left font-medium px-3 py-2.5">
+                  <Tooltip content="Quantidade de quartos"><span>Quartos</span></Tooltip>
+                </th>
+                <th scope="col" className="text-left font-medium px-3 py-2.5">
+                  <Tooltip content="Área útil em metros quadrados"><span>Área (m²)</span></Tooltip>
+                </th>
+                <th scope="col" className="text-left font-medium px-3 py-2.5">
+                  <Tooltip content="Valor mensal ou base (mock)"><span>Valor (R$)</span></Tooltip>
+                </th>
+                <th scope="col" className="px-3 py-2.5"></th>
               </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="flex items-center justify-between gap-4">
-        <div className="text-sm text-muted-foreground">Página {currentPage} de {totalPages}</div>
-        <div className="flex gap-2">
-          <button className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={currentPage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</button>
-          <button className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={currentPage >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>Próxima</button>
+            </thead>
+            <tbody>
+              {pageItems.map((im) => (
+                <tr key={im.id} className="border-t border-border odd:bg-background even:bg-muted/5 hover:bg-muted/20">
+                  <td className="px-3 py-2">
+                    <div className="font-medium">{im.titulo}</div>
+                    <div className="text-muted-foreground text-xs">{im.endereco}</div>
+                  </td>
+                  <td className="px-3 py-2 capitalize">{im.tipo}</td>
+                  <td className="px-3 py-2">{statusBadge(im.status)}</td>
+                  <td className="px-3 py-2">{im.quartos}</td>
+                  <td className="px-3 py-2">{im.area_m2}</td>
+                  <td className="px-3 py-2">{im.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
+                  <td className="px-3 py-2 text-right">
+                    <div className="flex justify-end gap-2">
+                      <button aria-label={`Editar imóvel ${im.titulo}`} onClick={() => openEdit(im)} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30">Editar</button>
+                      <button aria-label={`Excluir imóvel ${im.titulo}`} onClick={() => askRemove(im)} className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10">Excluir</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {pageItems.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-3 py-10 text-center text-muted-foreground" aria-live="polite">Nenhum resultado para os filtros atuais.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-      </div>
+        {/* Paginação */}
+        <div className="mt-3 flex items-center justify-between gap-4">
+          <div className="text-sm text-muted-foreground">Página {currentPage} de {totalPages}</div>
+          <div className="flex gap-2">
+            <button className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={currentPage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</button>
+            <button className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={currentPage >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>Próxima</button>
+          </div>
+        </div>
+      </SectionCard>
 
       {/* Modal simples para criar/editar */}
       {isOpen && editing && (
