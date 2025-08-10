@@ -8,6 +8,11 @@ export type UserClaims = {
 };
 
 export async function getSessionAndClaims() {
+  // If envs are missing, skip Supabase calls to avoid build/runtime errors
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    return { session: null, claims: null } as const;
+  }
+
   const supabase = createSupabaseServer();
   const {
     data: { session },
@@ -43,16 +48,9 @@ function parseJwt(token: string) {
   try {
     const base64Url = token.split(".")[1];
     const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split("")
-        .map(function (c) {
-          return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-        })
-        .join("")
-    );
+    const jsonPayload = Buffer.from(base64, "base64").toString("utf-8");
     return JSON.parse(jsonPayload);
   } catch (e) {
-    return {};
+    return {} as any;
   }
 }
