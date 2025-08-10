@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
+import { StatusBadge } from "../../../components/ui/StatusBadge";
 
 type EmpresaStatus = "ativa" | "inativa";
 type Empresa = {
@@ -85,6 +86,33 @@ export default function EmpresasPage() {
   }
   function saveItem() {
     if (!editing) return;
+    const onlyDigits = (s: string) => s.replace(/\D/g, "");
+    const maskCNPJ = (v: string) => {
+      const d = onlyDigits(v).slice(0, 14);
+      const p1 = d.slice(0, 2);
+      const p2 = d.slice(2, 5);
+      const p3 = d.slice(5, 8);
+      const p4 = d.slice(8, 12);
+      const p5 = d.slice(12, 14);
+      let out = p1;
+      if (p2) out += "." + p2;
+      if (p3) out += "." + p3;
+      if (p4) out += "/" + p4;
+      if (p5) out += "-" + p5;
+      return out;
+    };
+    const isCNPJValidFormat = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/.test(editing.cnpj);
+    if (!isCNPJValidFormat) {
+      // tenta formatar automaticamente se vier só dígitos
+      const digits = onlyDigits(editing.cnpj);
+      if (digits.length === 14) {
+        editing.cnpj = maskCNPJ(digits);
+      } else {
+        setToast({ message: "CNPJ inválido", tone: "error" });
+        setTimeout(() => setToast(null), 2500);
+        return;
+      }
+    }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editing.email)) {
       setToast({ message: "E-mail inválido", tone: "error" });
       setTimeout(() => setToast(null), 2500);
@@ -165,7 +193,18 @@ export default function EmpresasPage() {
                 <td className="px-3 py-2">{e.cnpj}</td>
                 <td className="px-3 py-2">{e.contato}</td>
                 <td className="px-3 py-2">{e.email}</td>
-                <td className="px-3 py-2 capitalize">{e.status}</td>
+                <td className="px-3 py-2">
+                  <StatusBadge
+                    tone={e.status === "ativa" ? "emerald" : "zinc"}
+                    leftIcon={e.status === "ativa" ? (
+                      <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
+                    ) : (
+                      <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59Z" /></svg>
+                    )}
+                  >
+                    {e.status}
+                  </StatusBadge>
+                </td>
                 <td className="px-3 py-2 text-right">
                   <div className="flex justify-end gap-2">
                     <button onClick={() => openEdit(e)} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30">Editar</button>
@@ -176,7 +215,7 @@ export default function EmpresasPage() {
             ))}
             {pageItems.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-3 py-10 text-center text-muted-foreground">Nenhum resultado para os filtros atuais.</td>
+                <td colSpan={6} className="px-3 py-10 text-center text-muted-foreground" aria-live="polite">Nenhum resultado para os filtros atuais.</td>
               </tr>
             )}
           </tbody>
@@ -205,7 +244,20 @@ export default function EmpresasPage() {
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">CNPJ</label>
-                <input value={editing.cnpj} onChange={(e) => setEditing((prev) => prev ? { ...prev, cnpj: e.target.value } : prev)} className="mt-1 h-9 w-full px-3 rounded-md border border-input bg-background" />
+                <input
+                  value={editing.cnpj}
+                  onChange={(e) => {
+                    const v = e.target.value.replace(/\D/g, "").slice(0, 14);
+                    const masked = v
+                      .replace(/(\d{2})(\d)/, "$1.$2")
+                      .replace(/(\d{3})(\d)/, "$1.$2")
+                      .replace(/(\d{3})(\d)/, "$1/$2")
+                      .replace(/(\d{4})(\d{1,2})$/, "$1-$2");
+                    setEditing((prev) => (prev ? { ...prev, cnpj: masked } : prev));
+                  }}
+                  inputMode="numeric"
+                  className="mt-1 h-9 w-full px-3 rounded-md border border-input bg-background"
+                />
               </div>
               <div>
                 <label className="text-xs text-muted-foreground">Contato</label>
