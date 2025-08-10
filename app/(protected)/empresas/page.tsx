@@ -214,7 +214,37 @@ export default function EmpresasPage() {
 
       {/* Lista */}
       <SectionCard title="Lista de empresas" subtitle="mock">
-        <div className="overflow-auto rounded-lg border border-border">
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-2">
+          {pageItems.length === 0 ? (
+            <div className="px-3 py-10 text-center text-sm text-muted-foreground" aria-live="polite">
+              Nenhum resultado para os filtros atuais.
+            </div>
+          ) : (
+            pageItems.map((e) => (
+              <div key={e.id} className="rounded-lg border border-border bg-card p-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="text-sm font-medium leading-5">{e.nome}</div>
+                    <div className="text-[11px] font-mono text-muted-foreground mt-0.5">{e.cnpj}</div>
+                  </div>
+                  <div className="flex shrink-0 gap-2">
+                    <button aria-label={`Editar empresa ${e.nome}`} onClick={() => openEdit(e)} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30">Editar</button>
+                    <button aria-label={`Excluir empresa ${e.nome}`} onClick={() => askRemove(e)} className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10">Excluir</button>
+                  </div>
+                </div>
+                <div className="mt-2 grid grid-cols-1 gap-1 text-xs text-muted-foreground">
+                  <div><span className="sr-only">Contato:</span>{e.contato}</div>
+                  <div className="truncate"><span className="sr-only">E-mail:</span>{e.email}</div>
+                  <div className="mt-1"><span className="sr-only">Status:</span><StatusBadge tone={e.status === "ativa" ? "emerald" : "zinc"}>{e.status}</StatusBadge></div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden md:block overflow-auto rounded-lg border border-border">
           <table className="min-w-full text-sm">
             <thead className="sticky top-0 z-10 border-b bg-card/95 text-muted-foreground backdrop-blur supports-[backdrop-filter]:bg-card/70">
               <tr>
