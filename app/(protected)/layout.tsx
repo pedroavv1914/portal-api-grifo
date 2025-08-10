@@ -1,11 +1,12 @@
 import { ReactNode } from "react";
+import MobileNav from "../../components/layout/MobileNav";
 // Auth removed; layout is always accessible.
 
 export default async function ProtectedLayout({ children }: { children: ReactNode }) {
   // No auth gate for now.
 
   return (
-    <div className="min-h-screen grid grid-cols-[260px_1fr]">
+    <div className="min-h-screen grid grid-cols-1 md:grid-cols-[260px_1fr]">
       <aside className="hidden md:flex md:flex-col border-r border-border bg-card/60 backdrop-blur supports-[backdrop-filter]:bg-card/40 sticky top-0 min-h-screen">
         {/* Brand */}
         <div className="px-4 py-4 flex items-center gap-2 border-b border-border">
@@ -73,7 +74,7 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
       </aside>
       <main className="bg-background">
         <header className="sticky top-0 z-10 border-b border-border bg-gradient-to-b from-background/95 to-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {/* Left cluster: brand + divider */}
             <a href="/dashboard" className="group flex items-center gap-2" aria-label="Ir para o dashboard">
               <div className="h-8 w-8 rounded-md bg-primary/10 border border-primary/30 grid place-items-center text-primary">
@@ -88,7 +89,7 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
             <div className="mx-2 h-6 w-px bg-border" aria-hidden="true"></div>
 
             {/* Center: search */}
-            <div className="relative flex-1 max-w-xl">
+            <div className="relative w-full md:flex-1 md:max-w-xl order-2 md:order-none">
               <input
                 type="search"
                 placeholder="Buscar (/, clientes, imóveis, protocolos...)"
@@ -104,6 +105,8 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
 
             {/* Right: quick actions */}
             <div className="ml-auto flex items-center gap-2">
+              {/* Mobile nav trigger */}
+              <MobileNav />
               <button className="h-9 px-2 rounded-md border border-border hover:bg-muted/30" aria-label="Criar novo">
                 <div className="flex items-center gap-1.5 text-sm">
                   <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z"/></svg>
@@ -127,7 +130,7 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
             </div>
           </div>
         </header>
-        <div className="p-6">{children}</div>
+        <div className="p-4 md:p-6">{children}</div>
       </main>
     </div>
   );
