@@ -45,6 +45,8 @@ export default function EmpresasPage() {
   const [items, setItems] = useState<Empresa[]>(MOCK_EMPRESAS);
   const [editing, setEditing] = useState<Empresa | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [toDelete, setToDelete] = useState<Empresa | null>(null);
+  const [toast, setToast] = useState<{ message: string; tone: "success" | "error" } | null>(null);
   const pageSize = 10;
 
   const filtered = useMemo(() => {
@@ -84,7 +86,8 @@ export default function EmpresasPage() {
   function saveItem() {
     if (!editing) return;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(editing.email)) {
-      alert("E-mail inválido");
+      setToast({ message: "E-mail inválido", tone: "error" });
+      setTimeout(() => setToast(null), 2500);
       return;
     }
     if (editing.id) {
@@ -94,9 +97,22 @@ export default function EmpresasPage() {
       setItems((prev) => [{ ...editing, id: newId }, ...prev]);
     }
     closeModal();
+    setToast({ message: "Empresa salva com sucesso", tone: "success" });
+    setTimeout(() => setToast(null), 2000);
   }
-  function removeItem(id: string) {
+  function askRemove(e: Empresa) {
+    setToDelete(e);
+  }
+  function confirmRemove() {
+    if (!toDelete) return;
+    const id = toDelete.id;
     setItems((prev) => prev.filter((p) => p.id !== id));
+    setToDelete(null);
+    setToast({ message: "Empresa excluída", tone: "success" });
+    setTimeout(() => setToast(null), 2000);
+  }
+  function cancelRemove() {
+    setToDelete(null);
   }
 
   return (
@@ -153,7 +169,7 @@ export default function EmpresasPage() {
                 <td className="px-3 py-2 text-right">
                   <div className="flex justify-end gap-2">
                     <button onClick={() => openEdit(e)} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30">Editar</button>
-                    <button onClick={() => removeItem(e.id)} className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10">Excluir</button>
+                    <button onClick={() => askRemove(e)} className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10">Excluir</button>
                   </div>
                 </td>
               </tr>
@@ -212,6 +228,25 @@ export default function EmpresasPage() {
               <button className="px-3 py-2 rounded-md bg-primary text-primary-foreground" onClick={saveItem}>Salvar</button>
             </div>
           </div>
+        </div>
+      )}
+
+      {toDelete && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={cancelRemove}>
+          <div className="w-full max-w-md rounded-xl border border-border bg-card p-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-medium mb-2">Confirmar exclusão</h3>
+            <p className="text-sm text-muted-foreground mb-4">Tem certeza que deseja excluir "{toDelete.nome}"?</p>
+            <div className="flex justify-end gap-2">
+              <button className="px-3 py-2 rounded-md border border-border" onClick={cancelRemove}>Cancelar</button>
+              <button className="px-3 py-2 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10" onClick={confirmRemove}>Excluir</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {toast && (
+        <div className={`fixed right-4 top-4 z-50 rounded-md px-3 py-2 text-sm shadow-md border ${toast.tone === "success" ? "bg-emerald-600 text-white border-emerald-500" : "bg-rose-600 text-white border-rose-500"}`}>
+          {toast.message}
         </div>
       )}
     </div>
