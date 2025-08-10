@@ -1,6 +1,9 @@
 "use client";
 import { useMemo, useState } from "react";
 import { StatusBadge } from "../../../components/ui/StatusBadge";
+import KpiCard from "../../../components/ui/KpiCard";
+import SectionCard from "../../../components/ui/SectionCard";
+import Tooltip from "../../../components/ui/Tooltip";
 
 type EmpresaStatus = "ativa" | "inativa";
 type Empresa = {
@@ -60,6 +63,13 @@ export default function EmpresasPage() {
   }, [items, query, status]);
 
   const total = filtered.length;
+  const kpiAtivas = useMemo(() => filtered.filter((e) => e.status === "ativa").length, [filtered]);
+  const kpiInativas = useMemo(() => filtered.filter((e) => e.status === "inativa").length, [filtered]);
+  const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+  const kpiNovas7d = useMemo(
+    () => filtered.filter((e) => new Date(e.criada_em).getTime() >= ANCHOR_TS - sevenDaysMs).length,
+    [filtered]
+  );
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const currentPage = Math.min(page, totalPages);
   const pageItems = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -144,91 +154,132 @@ export default function EmpresasPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6 overflow-x-hidden">
+      {/* Breadcrumbs */}
+      <nav className="text-xs text-muted-foreground" aria-label="breadcrumb">
+        <ol className="flex items-center gap-1">
+          <li><a href="/dashboard" className="hover:underline">Início</a></li>
+          <li aria-hidden className="mx-1">/</li>
+          <li aria-current="page" className="text-foreground">Empresas</li>
+        </ol>
+      </nav>
+
+      {/* Header */}
       <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-semibold">Empresas</h1>
           <p className="text-sm text-muted-foreground">Gestão de tenants (mock)</p>
         </div>
-        <button onClick={openCreate} className="rounded-md bg-primary text-primary-foreground px-3 py-2 text-sm font-medium hover:opacity-90">
-          Nova empresa
-        </button>
+        <Tooltip content="Criar nova empresa (mock)">
+          <button onClick={openCreate} className="h-9 rounded-md border border-border px-3 text-sm hover:bg-muted/30">
+            Nova empresa
+          </button>
+        </Tooltip>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <input
-          placeholder="Buscar por nome, CNPJ, contato ou e-mail"
-          value={query}
-          onChange={(e) => { setQuery(e.target.value); setPage(1); }}
-          className="h-9 px-3 rounded-md border border-input bg-background"
-        />
-        <select
-          value={status}
-          onChange={(e) => { setStatus(e.target.value as any); setPage(1); }}
-          className="h-9 px-2 rounded-md border border-input bg-background"
-        >
-          <option value="todos">Todos status</option>
-          <option value="ativa">Ativa</option>
-          <option value="inativa">Inativa</option>
-        </select>
-        <div className="flex items-center justify-end text-sm text-muted-foreground">{total} resultados</div>
-      </div>
+      {/* KPIs */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <KpiCard label="Ativas" value={kpiAtivas} color="#10b981" />
+        <KpiCard label="Inativas" value={kpiInativas} color="#71717a" />
+        <KpiCard label="Novas (7d)" value={kpiNovas7d} color="#3b82f6" />
+      </section>
 
-      <div className="overflow-auto rounded-lg border border-border">
-        <table className="min-w-full text-sm">
-          <thead className="bg-muted/40 text-muted-foreground">
-            <tr>
-              <th scope="col" className="text-left font-medium px-3 py-2.5">Empresa</th>
-              <th scope="col" className="text-left font-medium px-3 py-2.5">CNPJ</th>
-              <th scope="col" className="text-left font-medium px-3 py-2.5">Contato</th>
-              <th scope="col" className="text-left font-medium px-3 py-2.5">E-mail</th>
-              <th scope="col" className="text-left font-medium px-3 py-2.5">Status</th>
-              <th scope="col" className="px-3 py-2.5"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {pageItems.map((e) => (
-              <tr key={e.id} className="border-t border-border">
-                <td className="px-3 py-2">{e.nome}</td>
-                <td className="px-3 py-2">{e.cnpj}</td>
-                <td className="px-3 py-2">{e.contato}</td>
-                <td className="px-3 py-2">{e.email}</td>
-                <td className="px-3 py-2">
-                  <StatusBadge
-                    tone={e.status === "ativa" ? "emerald" : "zinc"}
-                    leftIcon={e.status === "ativa" ? (
-                      <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
-                    ) : (
-                      <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59Z" /></svg>
-                    )}
-                  >
-                    {e.status}
-                  </StatusBadge>
-                </td>
-                <td className="px-3 py-2 text-right">
-                  <div className="flex justify-end gap-2">
-                    <button aria-label={`Editar empresa ${e.nome}`} onClick={() => openEdit(e)} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30">Editar</button>
-                    <button aria-label={`Excluir empresa ${e.nome}`} onClick={() => askRemove(e)} className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10">Excluir</button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {pageItems.length === 0 && (
-              <tr>
-                <td colSpan={6} className="px-3 py-10 text-center text-muted-foreground" aria-live="polite">Nenhum resultado para os filtros atuais.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="flex items-center justify-between gap-4">
-        <div className="text-sm text-muted-foreground">Página {currentPage} de {totalPages}</div>
-        <div className="flex gap-2">
-          <button className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={currentPage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</button>
-          <button className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={currentPage >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>Próxima</button>
+      {/* Filtros */}
+      <SectionCard title="Filtros" subtitle={`${total} resultados`}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <input
+            placeholder="Buscar por nome, CNPJ, contato ou e-mail"
+            value={query}
+            onChange={(e) => { setQuery(e.target.value); setPage(1); }}
+            className="h-9 px-3 rounded-md border border-input bg-background"
+          />
+          <select
+            value={status}
+            onChange={(e) => { setStatus(e.target.value as any); setPage(1); }}
+            className="h-9 px-2 rounded-md border border-input bg-background"
+          >
+            <option value="todos">Todos status</option>
+            <option value="ativa">Ativa</option>
+            <option value="inativa">Inativa</option>
+          </select>
+          <div className="flex items-center justify-end text-sm text-muted-foreground">{total} resultados</div>
         </div>
-      </div>
+        {/* Quick chips */}
+        <div className="mt-3 flex flex-wrap gap-2 text-xs" aria-label="Filtros rápidos">
+          <button className={`px-2 py-1 rounded-md border ${status === "todos" ? "bg-muted/30" : "hover:bg-muted/20"}`} onClick={() => { setStatus("todos"); setPage(1); }}>Todos status</button>
+          <button className={`px-2 py-1 rounded-md border ${status === "ativa" ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300" : "hover:bg-muted/20"}`} onClick={() => { setStatus("ativa"); setPage(1); }}>Ativa</button>
+          <button className={`px-2 py-1 rounded-md border ${status === "inativa" ? "bg-zinc-500/15 border-zinc-500/30 text-zinc-300" : "hover:bg-muted/20"}`} onClick={() => { setStatus("inativa"); setPage(1); }}>Inativa</button>
+        </div>
+      </SectionCard>
+
+      {/* Lista */}
+      <SectionCard title="Lista de empresas" subtitle="mock">
+        <div className="overflow-auto rounded-lg border border-border">
+          <table className="min-w-full text-sm">
+            <thead className="sticky top-0 z-10 border-b bg-card/95 text-muted-foreground backdrop-blur supports-[backdrop-filter]:bg-card/70">
+              <tr>
+                <th scope="col" className="text-left font-medium px-3 py-2.5">
+                  <Tooltip content="Razão/Nome fantasia"><span>Empresa</span></Tooltip>
+                </th>
+                <th scope="col" className="text-left font-medium px-3 py-2.5">
+                  <Tooltip content="CNPJ no padrão 00.000.000/0000-00"><span>CNPJ</span></Tooltip>
+                </th>
+                <th scope="col" className="text-left font-medium px-3 py-2.5">
+                  <Tooltip content="Pessoa responsável"><span>Contato</span></Tooltip>
+                </th>
+                <th scope="col" className="text-left font-medium px-3 py-2.5">
+                  <Tooltip content="E-mail principal"><span>E-mail</span></Tooltip>
+                </th>
+                <th scope="col" className="text-left font-medium px-3 py-2.5">
+                  <Tooltip content="Situação da empresa"><span>Status</span></Tooltip>
+                </th>
+                <th scope="col" className="px-3 py-2.5"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {pageItems.map((e) => (
+                <tr key={e.id} className="border-t border-border odd:bg-background even:bg-muted/5 hover:bg-muted/20">
+                  <td className="px-3 py-2">{e.nome}</td>
+                  <td className="px-3 py-2">{e.cnpj}</td>
+                  <td className="px-3 py-2">{e.contato}</td>
+                  <td className="px-3 py-2">{e.email}</td>
+                  <td className="px-3 py-2">
+                    <StatusBadge
+                      tone={e.status === "ativa" ? "emerald" : "zinc"}
+                      leftIcon={e.status === "ativa" ? (
+                        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" /></svg>
+                      ) : (
+                        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59Z" /></svg>
+                      )}
+                    >
+                      {e.status}
+                    </StatusBadge>
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    <div className="flex justify-end gap-2">
+                      <button aria-label={`Editar empresa ${e.nome}`} onClick={() => openEdit(e)} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30">Editar</button>
+                      <button aria-label={`Excluir empresa ${e.nome}`} onClick={() => askRemove(e)} className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10">Excluir</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {pageItems.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="px-3 py-10 text-center text-muted-foreground" aria-live="polite">Nenhum resultado para os filtros atuais.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        {/* Paginação */}
+        <div className="mt-3 flex items-center justify-between gap-4">
+          <div className="text-sm text-muted-foreground">Página {currentPage} de {totalPages}</div>
+          <div className="flex gap-2">
+            <button className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={currentPage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>Anterior</button>
+            <button className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={currentPage >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>Próxima</button>
+          </div>
+        </div>
+      </SectionCard>
 
       {isOpen && editing && (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={closeModal} role="dialog" aria-modal="true" aria-labelledby="dialog-empresas-title">
