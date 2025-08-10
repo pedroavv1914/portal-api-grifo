@@ -199,13 +199,13 @@ export default function ImoveisPage() {
         <table className="min-w-full text-sm">
           <thead className="bg-muted/40 text-muted-foreground">
             <tr>
-              <th className="text-left font-medium px-3 py-2.5">Imóvel</th>
-              <th className="text-left font-medium px-3 py-2.5">Tipo</th>
-              <th className="text-left font-medium px-3 py-2.5">Status</th>
-              <th className="text-left font-medium px-3 py-2.5">Quartos</th>
-              <th className="text-left font-medium px-3 py-2.5">Área (m²)</th>
-              <th className="text-left font-medium px-3 py-2.5">Valor (R$)</th>
-              <th className="px-3 py-2.5"></th>
+              <th scope="col" className="text-left font-medium px-3 py-2.5">Imóvel</th>
+              <th scope="col" className="text-left font-medium px-3 py-2.5">Tipo</th>
+              <th scope="col" className="text-left font-medium px-3 py-2.5">Status</th>
+              <th scope="col" className="text-left font-medium px-3 py-2.5">Quartos</th>
+              <th scope="col" className="text-left font-medium px-3 py-2.5">Área (m²)</th>
+              <th scope="col" className="text-left font-medium px-3 py-2.5">Valor (R$)</th>
+              <th scope="col" className="px-3 py-2.5"></th>
             </tr>
           </thead>
           <tbody>
@@ -222,15 +222,15 @@ export default function ImoveisPage() {
                 <td className="px-3 py-2">{im.valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}</td>
                 <td className="px-3 py-2 text-right">
                   <div className="flex justify-end gap-2">
-                    <button onClick={() => openEdit(im)} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30">Editar</button>
-                    <button onClick={() => askRemove(im)} className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10">Excluir</button>
+                    <button aria-label={`Editar imóvel ${im.titulo}`} onClick={() => openEdit(im)} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30">Editar</button>
+                    <button aria-label={`Excluir imóvel ${im.titulo}`} onClick={() => askRemove(im)} className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10">Excluir</button>
                   </div>
                 </td>
               </tr>
             ))}
             {pageItems.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-3 py-10 text-center text-muted-foreground">Nenhum resultado para os filtros atuais.</td>
+                <td colSpan={7} className="px-3 py-10 text-center text-muted-foreground" aria-live="polite">Nenhum resultado para os filtros atuais.</td>
               </tr>
             )}
           </tbody>
@@ -247,10 +247,10 @@ export default function ImoveisPage() {
 
       {/* Modal simples para criar/editar */}
       {isOpen && editing && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={closeModal}>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={closeModal} role="dialog" aria-modal="true" aria-labelledby="dialog-imoveis-title">
           <div className="w-full max-w-lg rounded-xl border border-border bg-card p-4 shadow-[0_0_12px_#0006]" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-medium">{editing.id ? "Editar imóvel" : "Novo imóvel"}</h3>
+              <h3 id="dialog-imoveis-title" className="text-lg font-medium">{editing.id ? "Editar imóvel" : "Novo imóvel"}</h3>
               <button className="text-sm text-muted-foreground hover:opacity-80" onClick={closeModal}>Fechar</button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -302,9 +302,9 @@ export default function ImoveisPage() {
       )}
 
       {toDelete && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={cancelRemove}>
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={cancelRemove} role="dialog" aria-modal="true" aria-labelledby="dialog-imoveis-remove-title">
           <div className="w-full max-w-md rounded-xl border border-border bg-card p-4" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-medium mb-2">Confirmar exclusão</h3>
+            <h3 id="dialog-imoveis-remove-title" className="text-lg font-medium mb-2">Confirmar exclusão</h3>
             <p className="text-sm text-muted-foreground mb-4">Tem certeza que deseja excluir "{toDelete.titulo}"?</p>
             <div className="flex justify-end gap-2">
               <button className="px-3 py-2 rounded-md border border-border" onClick={cancelRemove}>Cancelar</button>
