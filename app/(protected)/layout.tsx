@@ -29,8 +29,7 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
         <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur px-4 py-3 flex items-center justify-between">
           <div className="font-semibold">Portal Web Grifo Vistorias</div>
           <form action="/logout" method="post">
-            {/* Placeholder para logout POST route futura */}
-            <button type="button" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground opacity-75 cursor-not-allowed">
+            <button type="submit" className="px-3 py-1.5 rounded-md bg-primary text-primary-foreground hover:opacity-90">
               Logout
             </button>
           </form>
