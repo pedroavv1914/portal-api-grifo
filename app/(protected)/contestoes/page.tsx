@@ -31,16 +31,19 @@ export default function ContestoesPage() {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<"todos" | ContStatus>("todos");
   const [page, setPage] = useState(1);
+  const [items, setItems] = useState<Contestacao[]>(MOCK_CONTESTACOES);
+  const [toDelete, setToDelete] = useState<Contestacao | null>(null);
+  const [toast, setToast] = useState<{ message: string; tone: "success" | "error" } | null>(null);
   const pageSize = 10;
 
   const filtered = useMemo(() => {
-    return MOCK_CONTESTACOES.filter((c) => {
+    return items.filter((c) => {
       const q = `${c.protocolo} ${c.imovel} ${c.autor}`.toLowerCase();
       const matchesQ = q.includes(query.toLowerCase());
       const matchesStatus = status === "todos" ? true : c.status === status;
       return matchesQ && matchesStatus;
     });
-  }, [query, status]);
+  }, [items, query, status]);
 
   const total = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -55,6 +58,21 @@ export default function ContestoesPage() {
       rejeitada: "bg-rose-500/15 text-rose-400",
     };
     return <span className={`px-2 py-0.5 rounded text-xs font-medium ${map[s]}`}>{s.replace("_", " ")}</span>;
+  }
+
+  function askRemove(c: Contestacao) {
+    setToDelete(c);
+  }
+  function confirmRemove() {
+    if (!toDelete) return;
+    const id = toDelete.id;
+    setItems((prev) => prev.filter((p) => p.id !== id));
+    setToDelete(null);
+    setToast({ message: "Contestação excluída", tone: "success" });
+    setTimeout(() => setToast(null), 2000);
+  }
+  function cancelRemove() {
+    setToDelete(null);
   }
 
   return (
@@ -106,9 +124,10 @@ export default function ContestoesPage() {
                 <td className="px-3 py-2">{c.autor}</td>
                 <td className="px-3 py-2">{statusBadge(c.status)}</td>
                 <td className="px-3 py-2 text-right">
-                  <Link href={`/contestoes/${c.id}`} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30 inline-block">
-                    Abrir
-                  </Link>
+                  <div className="flex justify-end gap-2">
+                    <Link href={`/contestoes/${c.id}`} className="px-2 py-1.5 rounded-md border border-border hover:bg-muted/30 inline-block">Abrir</Link>
+                    <button onClick={() => askRemove(c)} className="px-2 py-1.5 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10">Excluir</button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -128,6 +147,25 @@ export default function ContestoesPage() {
           <button className="px-3 py-1.5 rounded-md border border-border disabled:opacity-50" disabled={currentPage >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>Próxima</button>
         </div>
       </div>
+
+      {toDelete && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" onClick={cancelRemove}>
+          <div className="w-full max-w-md rounded-xl border border-border bg-card p-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-medium mb-2">Confirmar exclusão</h3>
+            <p className="text-sm text-muted-foreground mb-4">Tem certeza que deseja excluir "{toDelete.protocolo}"?</p>
+            <div className="flex justify-end gap-2">
+              <button className="px-3 py-2 rounded-md border border-border" onClick={cancelRemove}>Cancelar</button>
+              <button className="px-3 py-2 rounded-md border border-rose-500/40 text-rose-400 hover:bg-rose-500/10" onClick={confirmRemove}>Excluir</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {toast && (
+        <div className={`fixed right-4 top-4 z-50 rounded-md px-3 py-2 text-sm shadow-md border ${toast.tone === "success" ? "bg-emerald-600 text-white border-emerald-500" : "bg-rose-600 text-white border-rose-500"}`}>
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 }
