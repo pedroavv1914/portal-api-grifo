@@ -73,28 +73,27 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
         </div>
       </aside>
       <main className="bg-background">
-        <header className="sticky top-0 z-10 border-b border-border bg-gradient-to-b from-background/95 to-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-3">
-          <div className="flex flex-wrap items-center gap-3">
+        <header className="sticky top-0 z-40 border-b border-border bg-card/70 backdrop-blur supports-[backdrop-filter]:bg-card/50">
+          <div className="flex items-center gap-2 p-3 md:p-4 pt-[calc(env(safe-area-inset-top)+0.5rem)] md:pt-4">
             {/* Left cluster: brand + divider */}
-            <a href="/dashboard" className="group flex items-center gap-2" aria-label="Ir para o dashboard">
-              <div className="h-8 w-8 rounded-md bg-primary/10 border border-primary/30 grid place-items-center text-primary">
-                {/* simple griffin-like icon */}
+            <a href="/dashboard" className="flex items-center gap-2" aria-label="Ir para dashboard">
+              <span className="inline-grid h-8 w-8 place-items-center rounded-md bg-primary/10 border border-primary/30 text-primary">
                 <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.5 4.5L20 8l-4 3 1 5-5-2.5L7 16l1-5-4-3 5.5-1.5L12 2z"/></svg>
-              </div>
+              </span>
               <div className="leading-tight">
                 <div className="font-semibold tracking-tight">Grifo</div>
-                <div className="text-xs text-muted-foreground">Vistorias Imobiliárias</div>
+                <div className="hidden xs:block text-xs text-muted-foreground">Vistorias Imobiliárias</div>
               </div>
             </a>
-            <div className="mx-2 h-6 w-px bg-border" aria-hidden="true"></div>
+            <div className="mx-2 h-6 w-px bg-border hidden md:block" aria-hidden="true"></div>
 
             {/* Center: search */}
-            <div className="relative w-full md:flex-1 md:max-w-xl order-2 md:order-none">
+            <div className="relative w-full order-3 md:order-none md:flex-1 md:max-w-xl mt-2 md:mt-0">
               <input
                 type="search"
-                placeholder="Buscar (/, clientes, imóveis, protocolos...)"
+                placeholder="Buscar (clientes, imóveis, protocolos...)"
                 aria-label="Buscar no portal"
-                className="w-full h-10 pl-9 pr-3 rounded-md border border-input bg-background placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/40"
+                className="w-full h-9 md:h-10 pl-9 pr-3 rounded-md border border-input bg-background placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/40"
               />
               <svg aria-hidden="true" className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4a6 6 0 104.472 10.028l4.75 4.75 1.414-1.414-4.75-4.75A6 6 0 0010 4zm-4 6a4 4 0 118 0 4 4 0 01-8 0z"/></svg>
               <div className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-1 text-[10px] text-muted-foreground">
@@ -104,29 +103,31 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
             </div>
 
             {/* Right: quick actions */}
-            <div className="ml-auto flex items-center gap-2">
+            <div className="ml-auto flex items-center gap-2 order-2 md:order-none">
               {/* Mobile nav trigger */}
-              <MobileNav />
-              <button className="h-9 px-2 rounded-md border border-border hover:bg-muted/30" aria-label="Criar novo">
-                <div className="flex items-center gap-1.5 text-sm">
-                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z"/></svg>
-                  <span className="hidden sm:inline">Novo</span>
-                </div>
-              </button>
-              <button className="h-9 w-9 rounded-md border border-border hover:bg-muted/30 grid place-items-center" aria-label="Alternar tema">
-                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 100 18 7 7 0 010-18z"/></svg>
-              </button>
-              <button className="relative h-9 w-9 rounded-md border border-border hover:bg-muted/30 grid place-items-center" aria-label="Notificações">
-                <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22a2 2 0 002-2H10a2 2 0 002 2zm6-6V11a6 6 0 10-12 0v5l-2 2v1h16v-1l-2-2z"/></svg>
-                <span className="absolute -top-1 -right-1 h-4 min-w-[16px] rounded-full bg-primary text-primary-foreground text-[10px] leading-4 px-1 text-center">3</span>
-              </button>
-              <div className="relative">
-                <button className="h-9 pl-2 pr-3 rounded-md border border-border hover:bg-muted/30 flex items-center gap-2" aria-haspopup="menu" aria-expanded="false" aria-label="Abrir menu do usuário">
-                  <span className="inline-grid h-6 w-6 place-items-center rounded-full bg-gradient-to-br from-primary/20 to-primary/40 text-primary border border-primary/30 text-[10px] font-semibold">PG</span>
-                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+              <div className="flex items-center gap-1 rounded-lg border border-border p-0.5 bg-background/60">
+                <MobileNav />
+                <button className="hidden sm:inline-flex h-9 px-2 rounded-md hover:bg-muted/30" aria-label="Criar novo">
+                  <div className="flex items-center gap-1.5 text-sm">
+                    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z"/></svg>
+                    <span className="hidden md:inline">Novo</span>
+                  </div>
                 </button>
+                <button className="h-9 w-9 rounded-md hover:bg-muted/30 grid place-items-center" aria-label="Alternar tema">
+                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a9 9 0 100 18 7 7 0 010-18z"/></svg>
+                </button>
+                <button className="relative h-9 w-9 rounded-md hover:bg-muted/30 grid place-items-center" aria-label="Notificações">
+                  <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 22a2 2 0 002-2H10a2 2 0 002 2zm6-6V11a6 6 0 10-12 0v5l-2 2v1h16v-1l-2-2z"/></svg>
+                  <span className="absolute -top-1 -right-1 h-4 min-w-[16px] rounded-full bg-primary text-primary-foreground text-[10px] leading-4 px-1 text-center">3</span>
+                </button>
+                <div className="relative">
+                  <button className="h-9 w-9 sm:w-auto sm:pl-2 sm:pr-3 rounded-md hover:bg-muted/30 flex items-center gap-2" aria-haspopup="menu" aria-expanded="false" aria-label="Abrir menu do usuário">
+                    <span className="inline-grid h-6 w-6 place-items-center rounded-full bg-gradient-to-br from-primary/20 to-primary/40 text-primary border border-primary/30 text-[10px] font-semibold">PG</span>
+                    <svg aria-hidden="true" className="hidden sm:block" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+                  </button>
+                </div>
               </div>
-              <a href="/login" className="h-9 px-3 rounded-md bg-primary text-primary-foreground hover:opacity-90" aria-label="Ir para login">Login</a>
+              <a href="/login" className="hidden sm:inline-flex h-9 px-3 rounded-md bg-primary text-primary-foreground hover:opacity-90" aria-label="Ir para login">Login</a>
             </div>
           </div>
         </header>
